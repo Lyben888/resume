@@ -431,10 +431,10 @@
               <span class="text-zinc-500 text-xs">· 6 张</span>
             </span>
             <span class="grid place-items-center w-8 h-8 rounded-full bg-white/[.04] border border-white/10 group-hover:border-cyan-400/40 transition text-zinc-400 group-hover:text-cyan-300">
-              <i data-lucide="chevron-down" id="certChevron" class="w-4 h-4 transition-transform duration-300"></i>
+              <i data-lucide="chevron-down" id="certChevron" class="w-4 h-4 transition-transform duration-300 rotate-[-90deg]"></i>
             </span>
           </button>
-          <div id="certBody" class="grid md:grid-cols-2 gap-5 mt-5 max-h-[1600px] opacity-100 transition-all duration-500 ease-out overflow-hidden">
+          <div id="certBody" class="grid md:grid-cols-2 gap-5 mt-0 max-h-0 opacity-0 transition-all duration-500 ease-out overflow-hidden">
             <!-- 卡 1 -->
             <div class="rounded-2xl p-5 bg-white/[.03] border border-white/5 grid sm:grid-cols-[0.85fr_1fr] gap-6 items-center">
               <div class="cert-open relative rounded-2xl overflow-hidden cursor-zoom-in hover:scale-[1.015] transition shadow-xl" data-full="cert-ai-trainer.png">
@@ -812,7 +812,7 @@
     const certToggleBtn = document.getElementById("certToggle");
     const certBodyEl = document.getElementById("certBody");
     const certChevron = document.getElementById("certChevron");
-    let certExpanded = true;
+    let certExpanded = false;
     certToggleBtn.addEventListener("click", () => {
       certExpanded = !certExpanded;
       certBodyEl.classList.toggle("max-h-[1600px]", certExpanded);
