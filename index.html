@@ -79,6 +79,43 @@
     ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 999px; }
     ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
 
+    /* certifications fan carousel (Cover Flow arc) */
+    .fan { position: relative; }
+    .fan-stage { position: relative; height: 620px; perspective: 1500px; transform-style: preserve-3d; display: flex; align-items: center; justify-content: center; }
+    .fan-card {
+      position: absolute; left: 50%; top: 50%;
+      width: 300px;
+      border-radius: 1rem;
+      box-shadow: 0 22px 55px rgba(0,0,0,.45);
+      cursor: pointer;
+      transform: translate(-50%,-50%);
+      transform-origin: center center;
+      transition: transform .6s cubic-bezier(.22,1,.36,1), opacity .6s ease, filter .6s ease;
+      will-change: transform;
+      backface-visibility: hidden;
+    }
+    .fan-card.is-active { box-shadow: 0 0 0 1px rgba(34,211,238,.55), 0 30px 80px rgba(8,47,73,.5); }
+    .fan-arrow {
+      position: absolute; top: 46%; transform: translateY(-50%);
+      z-index: 80; width: 46px; height: 46px; border-radius: 9999px;
+      display: grid; place-items: center; font-size: 1.7rem; line-height: 1;
+      background: rgba(0,0,0,.42); border: 1px solid rgba(255,255,255,.22);
+      color: #fff; cursor: pointer; transition: all .25s; backdrop-filter: blur(8px);
+      box-shadow: 0 6px 20px rgba(0,0,0,.35);
+    }
+    .fan-arrow:hover { background: rgba(34,211,238,.22); border-color: rgba(34,211,238,.55); color: #a5f3fc; box-shadow: 0 8px 26px rgba(34,211,238,.2); }
+    .fan-prev { left: 10px; } .fan-next { right: 10px; }
+    .fan-dots { display: flex; gap: .55rem; justify-content: center; margin-top: .5rem; }
+    .fan-dots button { width: 8px; height: 8px; border-radius: 9999px; background: rgba(255,255,255,.38); border: none; padding: 0; cursor: pointer; transition: all .3s; }
+    .fan-dots button.active { background: #22d3ee; width: 24px; box-shadow: 0 0 10px rgba(34,211,238,.5); }
+    @media (max-width: 640px) {
+      .fan-stage { height: 560px; }
+      .fan-card { width: 250px; }
+      .fan-arrow { width: 38px; height: 38px; font-size: 1.4rem; }
+      .fan-prev { left: 2px; } .fan-next { right: 2px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .fan-card { transition: none !important; } }
+
     @media print {
       nav, .glow-blob, #code-bg, .game-modal, .lightbox, .no-print, .toast { display: none !important; }
       body { background: #fff !important; color: #000 !important; }
@@ -86,6 +123,8 @@
       .reveal { opacity: 1 !important; transform: none !important; }
       section, main { padding: 20px 0 !important; }
       * { color: #111 !important; }
+      .fan-stage { display: block !important; height: auto !important; transform: none !important; }
+      .fan-card { position: static !important; transform: none !important; opacity: 1 !important; width: 100% !important; margin: 0 0 1rem !important; box-shadow: none !important; }
     }
   </style>
 </head>
@@ -424,19 +463,20 @@
       <!-- 证书 (折叠) -->
       <div id="cert" class="reveal md:col-span-2 xl:col-span-4">
         <article class="bento glass rounded-3xl p-5 h-full">
-          <button id="certToggle" type="button" class="w-full flex items-center justify-between group text-left">
+          <div class="flex items-center justify-between">
             <span class="flex items-center gap-2.5 text-cyan-400">
               <i data-lucide="award" class="w-5 h-5"></i>
               <span class="text-xs font-bold tracking-[0.15em] uppercase">Certifications</span>
               <span class="text-zinc-500 text-xs">· 6 张</span>
             </span>
-            <span class="grid place-items-center w-8 h-8 rounded-full bg-white/[.04] border border-white/10 group-hover:border-cyan-400/40 transition text-zinc-400 group-hover:text-cyan-300">
-              <i data-lucide="chevron-down" id="certChevron" class="w-4 h-4 transition-transform duration-300"></i>
-            </span>
-          </button>
-          <div id="certBody" class="grid md:grid-cols-2 gap-5 mt-5 max-h-[1600px] opacity-100 transition-all duration-500 ease-out overflow-hidden">
+            <span class="text-zinc-500 text-xs flex items-center gap-1.5"><i data-lucide="move-horizontal" class="w-3.5 h-3.5"></i>左右滑动切换</span>
+          </div>
+          <div id="certBody" class="mt-5">
+            <div class="fan" id="fan">
+              <button class="fan-arrow fan-prev no-print" aria-label="上一张">‹</button>
+              <div class="fan-stage" id="fanStage">
             <!-- 卡 1 -->
-            <div class="rounded-2xl p-5 bg-white/[.03] border border-white/5 grid sm:grid-cols-[0.85fr_1fr] gap-6 items-center">
+            <div class="fan-card rounded-2xl p-4 bg-white/[.03] border border-white/5 grid gap-4 items-center">
               <div class="cert-open relative rounded-2xl overflow-hidden cursor-zoom-in hover:scale-[1.015] transition shadow-xl" data-full="cert-ai-trainer.png">
                 <span class="absolute top-3 right-3 z-10 bg-zinc-950/80 backdrop-blur text-cyan-300 text-[0.7rem] font-bold px-2.5 py-1 rounded-full border border-cyan-500/30">阿里巴巴橙点同学</span>
                 <img src="cert-ai-trainer.png" alt="人工智能训练师（初级）证书" class="w-full rounded-2xl" />
@@ -455,7 +495,7 @@
               </div>
             </div>
             <!-- 卡 2 -->
-            <div class="rounded-2xl p-5 bg-white/[.03] border border-white/5 grid sm:grid-cols-[0.85fr_1fr] gap-6 items-center">
+            <div class="fan-card rounded-2xl p-4 bg-white/[.03] border border-white/5 grid gap-4 items-center">
               <div class="cert-open relative rounded-2xl overflow-hidden cursor-zoom-in hover:scale-[1.015] transition shadow-xl" data-full="cert-prompt-engineer.jpg">
                 <span class="absolute top-3 right-3 z-10 bg-zinc-950/80 backdrop-blur text-cyan-300 text-[0.7rem] font-bold px-2.5 py-1 rounded-full border border-cyan-500/30">科大讯飞 AI 大学堂</span>
                 <img src="cert-prompt-engineer.jpg" alt="Prompt 工程师认证" class="w-full rounded-2xl" />
@@ -474,7 +514,7 @@
               </div>
             </div>
             <!-- 卡 3 -->
-            <div class="rounded-2xl p-5 bg-white/[.03] border border-white/5 grid sm:grid-cols-[0.85fr_1fr] gap-6 items-center">
+            <div class="fan-card rounded-2xl p-4 bg-white/[.03] border border-white/5 grid gap-4 items-center">
               <div class="cert-open relative rounded-2xl overflow-hidden cursor-zoom-in hover:scale-[1.015] transition shadow-xl" data-full="cert-fine-tuning-engineer.jpg">
                 <span class="absolute top-3 right-3 z-10 bg-zinc-950/80 backdrop-blur text-cyan-300 text-[0.7rem] font-bold px-2.5 py-1 rounded-full border border-cyan-500/30">科大讯飞 AI 大学堂</span>
                 <img src="cert-fine-tuning-engineer.jpg" alt="微调工程师认证" class="w-full rounded-2xl" />
@@ -493,7 +533,7 @@
               </div>
             </div>
             <!-- 卡 4 -->
-            <div class="rounded-2xl p-5 bg-white/[.03] border border-white/5 grid sm:grid-cols-[0.85fr_1fr] gap-6 items-center">
+            <div class="fan-card rounded-2xl p-4 bg-white/[.03] border border-white/5 grid gap-4 items-center">
               <div class="cert-open relative rounded-2xl overflow-hidden cursor-zoom-in hover:scale-[1.015] transition shadow-xl" data-full="cert-agent-engineer.jpg">
                 <span class="absolute top-3 right-3 z-10 bg-zinc-950/80 backdrop-blur text-cyan-300 text-[0.7rem] font-bold px-2.5 py-1 rounded-full border border-cyan-500/30">科大讯飞 AI 大学堂</span>
                 <img src="cert-agent-engineer.jpg" alt="智能体工程师认证" class="w-full rounded-2xl" />
@@ -512,7 +552,7 @@
               </div>
             </div>
             <!-- 卡 5 -->
-            <div class="rounded-2xl p-5 bg-white/[.03] border border-white/5 grid sm:grid-cols-[0.85fr_1fr] gap-6 items-center">
+            <div class="fan-card rounded-2xl p-4 bg-white/[.03] border border-white/5 grid gap-4 items-center">
               <div class="cert-open relative rounded-2xl overflow-hidden cursor-zoom-in hover:scale-[1.015] transition shadow-xl" data-full="cert-rag-engineer.jpg">
                 <span class="absolute top-3 right-3 z-10 bg-zinc-950/80 backdrop-blur text-cyan-300 text-[0.7rem] font-bold px-2.5 py-1 rounded-full border border-cyan-500/30">科大讯飞 AI 大学堂</span>
                 <img src="cert-rag-engineer.jpg" alt="RAG 工程师认证" class="w-full rounded-2xl" />
@@ -531,7 +571,7 @@
               </div>
             </div>
             <!-- 卡 6 -->
-            <div class="rounded-2xl p-5 bg-white/[.03] border border-white/5 grid sm:grid-cols-[0.85fr_1fr] gap-6 items-center">
+            <div class="fan-card rounded-2xl p-4 bg-white/[.03] border border-white/5 grid gap-4 items-center">
               <div class="cert-open relative rounded-2xl overflow-hidden cursor-zoom-in hover:scale-[1.015] transition shadow-xl" data-full="cert-ai-trainer-advanced.png">
                 <span class="absolute top-3 right-3 z-10 bg-zinc-950/80 backdrop-blur text-cyan-300 text-[0.7rem] font-bold px-2.5 py-1 rounded-full border border-cyan-500/30">阿里巴巴橙点同学</span>
                 <img src="cert-ai-trainer-advanced.png" alt="人工智能训练师（高级）证书" class="w-full rounded-2xl" />
@@ -549,6 +589,9 @@
                 </ul>
               </div>
             </div>
+              <button class="fan-arrow fan-next no-print" aria-label="下一张">›</button>
+            </div>
+            <div class="fan-dots no-print" id="fanDots"></div>
           </div>
         </article>
       </div>
@@ -808,21 +851,63 @@
     lightboxClose.addEventListener("click", () => { lightbox.classList.add("opacity-0"); setTimeout(() => { lightbox.classList.add("hidden"); lightbox.classList.remove("flex"); }, 300); });
     lightbox.addEventListener("click", (e) => { if (e.target === lightbox) lightboxClose.click(); });
 
-    // Certifications collapse
-    const certToggleBtn = document.getElementById("certToggle");
-    const certBodyEl = document.getElementById("certBody");
-    const certChevron = document.getElementById("certChevron");
-    let certExpanded = true;
-    certToggleBtn.addEventListener("click", () => {
-      certExpanded = !certExpanded;
-      certBodyEl.classList.toggle("max-h-[1600px]", certExpanded);
-      certBodyEl.classList.toggle("opacity-100", certExpanded);
-      certBodyEl.classList.toggle("mt-5", certExpanded);
-      certBodyEl.classList.toggle("max-h-0", !certExpanded);
-      certBodyEl.classList.toggle("opacity-0", !certExpanded);
-      certBodyEl.classList.toggle("mt-0", !certExpanded);
-      certChevron.classList.toggle("rotate-[-90deg]", !certExpanded);
-    });
+    // Certifications fan carousel (Cover Flow arc)
+    const fanStage = document.getElementById("fanStage");
+    if (fanStage) {
+      const fanCards = Array.from(fanStage.querySelectorAll(".fan-card"));
+      const fanDots = document.getElementById("fanDots");
+      const N = fanCards.length;
+      let fanIndex = 0;
+      fanCards.forEach((_, i) => {
+        const b = document.createElement("button");
+        b.setAttribute("aria-label", "第 " + (i + 1) + " 张证书");
+        b.addEventListener("click", () => setFan(i));
+        fanDots.appendChild(b);
+      });
+      function renderFan() {
+        fanCards.forEach((card, i) => {
+          const offset = i - fanIndex;
+          const abs = Math.abs(offset);
+          const visible = abs <= 3;
+          card.classList.toggle("is-active", offset === 0);
+          if (!visible) {
+            card.style.opacity = "0";
+            card.style.pointerEvents = "none";
+            card.style.zIndex = "1";
+            card.style.transform = "translate(-50%,-50%) translateX(" + (offset * 200) + "px) translateZ(-480px) rotateY(" + (-offset * 30) + "deg) scale(.55)";
+            return;
+          }
+          const tx = offset * 215;
+          const ry = -offset * 34;
+          const tz = -abs * 170;
+          const sc = 1 - abs * 0.14;
+          const op = 1 - abs * 0.28;
+          card.style.transform = "translate(-50%,-50%) translateX(" + tx + "px) translateZ(" + tz + "px) rotateY(" + ry + "deg) scale(" + sc + ")";
+          card.style.opacity = String(op);
+          card.style.zIndex = String(50 - abs);
+          card.style.pointerEvents = abs > 1 ? "none" : "auto";
+        });
+        Array.from(fanDots.children).forEach((d, i) => d.classList.toggle("active", i === fanIndex));
+      }
+      function setFan(i) { fanIndex = (i % N + N) % N; renderFan(); }
+      document.querySelector(".fan-prev").addEventListener("click", () => setFan(fanIndex - 1));
+      document.querySelector(".fan-next").addEventListener("click", () => setFan(fanIndex + 1));
+      fanCards.forEach((card, i) => {
+        card.addEventListener("click", (e) => {
+          if (e.target.closest(".cert-open")) return; // 让灯箱处理放大
+          if (i !== fanIndex) setFan(i);
+        });
+      });
+      const certSection = document.getElementById("cert");
+      document.addEventListener("keydown", (e) => {
+        if (!certSection) return;
+        const inView = certSection.getBoundingClientRect().top < window.innerHeight && certSection.getBoundingClientRect().bottom > 0;
+        if (!inView) return;
+        if (e.key === "ArrowLeft") setFan(fanIndex - 1);
+        if (e.key === "ArrowRight") setFan(fanIndex + 1);
+      });
+      renderFan();
+    }
 
     // Vanilla-Tilt 3D (desktop only; auto-disabled on touch / small screens)
     function initTilt() {
