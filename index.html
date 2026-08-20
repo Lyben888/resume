@@ -6,1549 +6,835 @@
   <title>刘洋宾 | 个人简历</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '"Noto Sans SC"', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
+  <script type="module" src="model-viewer.min.js"></script>
   <style>
-    :root {
-      --bg: #ffffff;
-      --bg-soft: #f7f8fb;
-      --text: #1a1d2b;
-      --text-muted: #6b7280;
-      --accent: #2563eb;
-      --accent-soft: #eff6ff;
-      --card: #ffffff;
-      --border: rgba(0, 0, 0, 0.06);
-      --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
-      --radius: 22px;
-      --transition: 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-      --nav-bg: rgba(255, 255, 255, 0.82);
-    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Plus Jakarta Sans', 'Noto Sans SC', system-ui, sans-serif; }
 
-    [data-theme="warm"] {
-      --bg: #fefbf6;
-      --bg-soft: #fff7ed;
-      --text: #2d1f14;
-      --text-muted: #8c6f5a;
-      --accent: #ea580c;
-      --accent-soft: #fff1e6;
-      --card: #ffffff;
-      --border: rgba(234, 88, 12, 0.08);
-      --shadow: 0 18px 45px rgba(124, 45, 18, 0.08);
-      --nav-bg: rgba(254, 251, 246, 0.86);
-    }
+    /* glow blobs */
+    .glow-blob { position: fixed; border-radius: 9999px; filter: blur(140px); pointer-events: none; z-index: 0; will-change: transform; }
 
-    [data-theme="dark"] {
-      --bg: #0b0f19;
-      --bg-soft: #111827;
-      --text: #f1f5f9;
-      --text-muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-soft: rgba(56, 189, 248, 0.12);
-      --card: rgba(30, 41, 59, 0.65);
-      --border: rgba(255, 255, 255, 0.08);
-      --shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
-      --nav-bg: rgba(11, 15, 25, 0.8);
-    }
+    /* floating code text background */
+    #code-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+    .code-float { position: absolute; font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 500; white-space: nowrap; will-change: transform; user-select: none; animation: floatY var(--dur, 12s) ease-in-out var(--delay, 0s) infinite; }
+    @keyframes floatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(var(--fy, -30px)); } }
+    @media (prefers-reduced-motion: reduce) { .code-float { animation: none !important; } }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    /* shrink cards so background shows through */
+    .bento { padding: 1.15rem !important; }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    /* glassmorphism card */
+    .glass { background: rgba(24, 24, 27, 0.76); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(39, 39, 42, 0.9); box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35); }
 
-    body {
-      font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.75;
-      overflow-x: hidden;
-      transition: background var(--transition), color var(--transition);
-    }
+    /* bento entrance (opacity only -> no conflict with tilt transform) */
+    @keyframes bentoIn { from { opacity: 0; } to { opacity: 1; } }
+    .bento { animation: bentoIn .7s ease both; transition: box-shadow .4s ease, border-color .4s ease; transform-style: preserve-3d; }
+    .bento:hover { box-shadow: 0 28px 70px rgba(8, 47, 73, 0.35); border-color: rgba(34, 211, 238, 0.25); }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
+    /* reveal on scroll (outer wrapper, keeps transform separate from tilt) */
+    .reveal { opacity: 0; transform: translateY(40px); transition: opacity .8s cubic-bezier(.22,1,.36,1), transform .8s cubic-bezier(.22,1,.36,1); }
+    .reveal.in-view { opacity: 1; transform: translateY(0); }
 
-    img {
-      max-width: 100%;
-      display: block;
-    }
+    @keyframes spin-slow { to { transform: rotate(360deg); } }
+    .spin-slow { animation: spin-slow 18s linear infinite; }
 
-    .container {
-      width: min(1120px, 92%);
-      margin: 0 auto;
-    }
+    @keyframes blink { 50% { opacity: 0; } }
+    .cursor-blink { display: inline-block; width: 3px; height: .85em; background: #22d3ee; margin-left: 6px; vertical-align: middle; animation: blink 1s step-end infinite; }
 
-    /* Navigation */
-    nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      z-index: 1000;
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      background: var(--nav-bg);
-      border-bottom: 1px solid var(--border);
-      transition: background var(--transition), border var(--transition);
-    }
+    @keyframes pulse-ring { 0%,100% { box-shadow: 0 0 0 5px rgba(245,158,11,.18); } 50% { box-shadow: 0 0 0 9px rgba(245,158,11,.08); } }
+    .pulse-ring { animation: pulse-ring 2s infinite; }
 
-    .nav-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 72px;
-    }
+    .game-modal { opacity: 0; transition: opacity .3s; }
+    .game-modal.open { opacity: 1; }
+    .game-panel { transform: scale(.94); transition: transform .3s; }
+    .game-modal.open .game-panel { transform: scale(1); }
 
-    .logo {
-      font-family: "Outfit", sans-serif;
-      font-weight: 800;
-      font-size: 1.25rem;
-      letter-spacing: -0.5px;
-      color: var(--accent);
-    }
+    #gameCanvas, #snakeCanvas { display: block; border-radius: 14px; background: #0b1020; max-width: 100%; touch-action: none; cursor: crosshair; }
 
-    .nav-links {
-      display: flex;
-      gap: 32px;
-      list-style: none;
-      font-size: 0.92rem;
-      font-weight: 500;
-    }
+    .nav-link { position: relative; opacity: .65; transition: opacity .25s; }
+    .nav-link::after { content: ""; position: absolute; bottom: -6px; left: 0; width: 0; height: 2px; background: #22d3ee; transition: width .3s; }
+    .nav-link:hover, .nav-link.active { opacity: 1; }
+    .nav-link:hover::after, .nav-link.active::after { width: 100%; }
 
-    .nav-links a {
-      position: relative;
-      opacity: 0.75;
-      transition: opacity 0.25s;
-    }
+    .toast { transform: translateY(80px); opacity: 0; transition: all .35s cubic-bezier(.22,1,.36,1); }
+    .toast.show { transform: translateY(0); opacity: 1; }
 
-    .nav-links a::after {
-      content: "";
-      position: absolute;
-      bottom: -6px;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: var(--accent);
-      transition: width 0.3s;
-    }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: #09090b; }
+    ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
 
-    .nav-links a:hover {
-      opacity: 1;
-    }
-
-    .nav-links a:hover::after,
-    .nav-links a.active::after {
-      width: 100%;
-    }
-
-    .theme-switcher {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .theme-dot {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid transparent;
-      transition: transform 0.25s, border-color 0.25s;
-      position: relative;
-    }
-
-    .theme-dot:hover {
-      transform: scale(1.15);
-    }
-
-    .theme-dot.active {
-      border-color: var(--text);
-    }
-
-    .theme-dot[data-theme="light"] { background: #ffffff; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
-    .theme-dot[data-theme="warm"] { background: #fff1e6; }
-    .theme-dot[data-theme="dark"] { background: #111827; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2); }
-
-    /* Hero */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      padding-top: 72px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(70px);
-      opacity: 0.55;
-      z-index: -1;
-      will-change: transform;
-    }
-
-    .blob-1 {
-      width: 460px;
-      height: 460px;
-      background: var(--accent-soft);
-      top: 10%;
-      left: -120px;
-    }
-
-    .blob-2 {
-      width: 360px;
-      height: 360px;
-      background: radial-gradient(circle at 30% 30%, rgba(37, 99, 235, 0.18), transparent 70%);
-      bottom: 5%;
-      right: -80px;
-    }
-
-    [data-theme="warm"] .blob-2 {
-      background: radial-gradient(circle at 30% 30%, rgba(234, 88, 12, 0.14), transparent 70%);
-    }
-
-    [data-theme="dark"] .blob-2 {
-      background: radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.16), transparent 70%);
-    }
-
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 340px 1fr;
-      gap: 64px;
-      align-items: center;
-    }
-
-    .photo-wrap {
-      position: relative;
-      justify-self: center;
-    }
-
-    .photo-ring {
-      position: absolute;
-      inset: -14px;
-      border-radius: 50%;
-      border: 2px dashed var(--accent);
-      opacity: 0.45;
-      animation: spin 18s linear infinite;
-    }
-
-    .photo-ring::before {
-      content: "";
-      position: absolute;
-      inset: 10px;
-      border-radius: 50%;
-      border: 1px solid var(--accent);
-      opacity: 0.3;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .photo {
-      width: 280px;
-      height: 280px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 6px solid var(--card);
-      box-shadow: var(--shadow);
-      transition: transform 0.5s;
-    }
-
-    .photo-wrap:hover .photo {
-      transform: scale(1.03) rotate(1deg);
-    }
-
-    .hero-content {
-      opacity: 0;
-      transform: translateY(30px);
-      animation: fadeUp 0.9s var(--transition) forwards;
-    }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--accent);
-      background: var(--accent-soft);
-      padding: 7px 16px;
-      border-radius: 999px;
-      margin-bottom: 18px;
-    }
-
-    .hero h1 {
-      font-family: "Outfit", "Noto Sans SC", sans-serif;
-      font-size: clamp(2.6rem, 6vw, 4.2rem);
-      font-weight: 800;
-      line-height: 1.1;
-      margin-bottom: 16px;
-      letter-spacing: -1px;
-    }
-
-    .hero h1 .cursor {
-      display: inline-block;
-      width: 3px;
-      height: 0.85em;
-      background: var(--accent);
-      margin-left: 6px;
-      vertical-align: middle;
-      animation: blink 1s step-end infinite;
-    }
-
-    @keyframes blink {
-      50% { opacity: 0; }
-    }
-
-    .subtitle {
-      font-size: 1.25rem;
-      color: var(--text-muted);
-      margin-bottom: 20px;
-      font-weight: 400;
-    }
-
-    .hero-desc {
-      max-width: 560px;
-      color: var(--text-muted);
-      margin-bottom: 28px;
-      font-size: 1.02rem;
-    }
-
-    .contact-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-
-    .contact-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 16px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      font-size: 0.92rem;
-      font-weight: 500;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.03);
-      transition: transform 0.25s, box-shadow 0.25s;
-    }
-
-    .contact-pill:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 22px rgba(0,0,0,0.06);
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 13px 26px;
-      border-radius: 999px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      border: none;
-      transition: transform 0.25s, box-shadow 0.25s;
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-      box-shadow: 0 10px 28px rgba(37, 99, 235, 0.28);
-    }
-
-    [data-theme="warm"] .btn-primary {
-      box-shadow: 0 10px 28px rgba(234, 88, 12, 0.25);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 34px rgba(37, 99, 235, 0.35);
-    }
-
-    .btn-ghost {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
-      margin-left: 10px;
-    }
-
-    .btn-ghost:hover {
-      background: var(--accent-soft);
-      border-color: var(--accent);
-    }
-
-    /* Motto */
-    .motto {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      max-width: 560px;
-      margin-bottom: 28px;
-      padding: 14px 18px;
-      border-left: 3px solid var(--accent);
-      background: var(--bg-soft);
-      border-radius: 0 14px 14px 0;
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      line-height: 1.7;
-    }
-
-    .motto strong {
-      color: var(--accent);
-      font-size: 1.02rem;
-      letter-spacing: 0.5px;
-    }
-
-    .motto-quote {
-      font-size: 1.6rem;
-      color: var(--accent);
-      opacity: 0.35;
-      line-height: 1;
-    }
-
-    .motto-quote-end { align-self: flex-end; }
-
-    /* Play button & game modal */
-    .play-btn {
-      margin-top: 20px;
-      font-size: 0.9rem;
-      padding: 11px 22px;
-    }
-
-    .game-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(10, 12, 20, 0.88);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      z-index: 2100;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .game-modal.open {
-      display: flex;
-      opacity: 1;
-    }
-
-    .game-panel {
-      background: var(--card);
-      border-radius: 20px;
-      padding: 18px 18px 14px;
-      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
-      transform: scale(0.94);
-      transition: transform 0.3s;
-    }
-
-    .game-modal.open .game-panel {
-      transform: scale(1);
-    }
-
-    .game-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-      font-weight: 700;
-      font-size: 1rem;
-    }
-
-    .game-score {
-      color: var(--accent);
-      font-family: "Outfit", sans-serif;
-      font-weight: 800;
-      margin-left: 14px;
-    }
-
-    .game-close {
-      background: none;
-      border: none;
-      font-size: 1.7rem;
-      line-height: 1;
-      cursor: pointer;
-      color: var(--text-muted);
-      transition: color 0.2s, transform 0.2s;
-    }
-
-    .game-close:hover {
-      color: var(--text);
-      transform: rotate(90deg);
-    }
-
-    .game-panel canvas {
-      display: block;
-      border-radius: 14px;
-      background: #0b1020;
-      max-width: 100%;
-      touch-action: none;
-      cursor: crosshair;
-    }
-
-    .game-tips {
-      margin-top: 10px;
-      text-align: center;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    /* Timeline */
-    .timeline {
-      position: relative;
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 10px 0 0 26px;
-      border-left: 2px solid var(--border);
-    }
-
-    .t-item {
-      position: relative;
-      padding-bottom: 38px;
-    }
-
-    .t-item:last-child { padding-bottom: 0; }
-
-    .t-dot {
-      position: absolute;
-      left: -33px;
-      top: 5px;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 0 5px var(--accent-soft);
-    }
-
-    .t-item.goal .t-dot {
-      background: #f59e0b;
-      box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.18);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.18); }
-      50% { box-shadow: 0 0 0 9px rgba(245, 158, 11, 0.08); }
-    }
-
-    .t-date {
-      display: inline-block;
-      font-size: 0.76rem;
-      font-weight: 700;
-      color: var(--accent);
-      background: var(--accent-soft);
-      padding: 3px 12px;
-      border-radius: 999px;
-      margin-bottom: 8px;
-      letter-spacing: 0.5px;
-    }
-
-    .t-item.goal .t-date {
-      color: #b45309;
-      background: rgba(245, 158, 11, 0.14);
-    }
-
-    .t-item h4 {
-      font-size: 1.12rem;
-      margin-bottom: 4px;
-    }
-
-    .t-item.goal h4 { color: #b45309; }
-
-    .t-item p {
-      color: var(--text-muted);
-      font-size: 0.92rem;
-    }
-
-    /* Gallery placeholders */
-    .gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 24px;
-      margin-top: 44px;
-    }
-
-    .gallery-card {
-      background: var(--card);
-      border: 1.5px dashed var(--border);
-      border-radius: var(--radius);
-      padding: 34px 26px;
-      text-align: center;
-      color: var(--text-muted);
-      transition: border-color 0.3s, transform 0.3s;
-    }
-
-    .gallery-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-4px);
-    }
-
-    .gallery-icon { font-size: 2.1rem; margin-bottom: 12px; }
-    .gallery-card h4 { color: var(--text); margin-bottom: 6px; }
-    .gallery-card p { font-size: 0.88rem; }
-
-    /* Sections */
-    section {
-      padding: 110px 0;
-      position: relative;
-    }
-
-    .section-header {
-      margin-bottom: 54px;
-      text-align: center;
-    }
-
-    .section-label {
-      display: inline-block;
-      font-size: 0.82rem;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 12px;
-    }
-
-    .section-title {
-      font-family: "Outfit", "Noto Sans SC", sans-serif;
-      font-size: clamp(1.9rem, 4vw, 2.6rem);
-      font-weight: 800;
-      letter-spacing: -0.5px;
-    }
-
-    .reveal {
-      opacity: 0;
-      transform: translateY(40px);
-      transition: opacity 0.8s var(--transition), transform 0.8s var(--transition);
-    }
-
-    .reveal.in-view {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* About / Education */
-    .edu-card {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 42px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 44px;
-      box-shadow: var(--shadow);
-      transition: transform 0.4s, box-shadow 0.4s;
-    }
-
-    .edu-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 26px 60px rgba(15, 23, 42, 0.12);
-    }
-
-    .edu-main h3 {
-      font-size: 1.45rem;
-      margin-bottom: 6px;
-    }
-
-    .edu-main .major {
-      color: var(--text-muted);
-      font-size: 1.05rem;
-      margin-bottom: 20px;
-    }
-
-    .edu-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .edu-meta-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 18px;
-      background: var(--bg-soft);
-      border-radius: 14px;
-      font-size: 0.95rem;
-    }
-
-    .edu-meta-item strong {
-      color: var(--accent);
-    }
-
-    /* Skills */
-    .skills-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 26px;
-    }
-
-    .skill-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 30px;
-      box-shadow: var(--shadow);
-      transition: transform 0.35s;
-    }
-
-    .skill-card:hover {
-      transform: translateY(-6px);
-    }
-
-    .skill-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      background: var(--accent-soft);
-      display: grid;
-      place-items: center;
-      font-size: 1.4rem;
-      margin-bottom: 18px;
-    }
-
-    .skill-card h3 {
-      font-size: 1.15rem;
-      margin-bottom: 8px;
-    }
-
-    .skill-card p {
-      color: var(--text-muted);
-      font-size: 0.92rem;
-      margin-bottom: 18px;
-    }
-
-    .progress-track {
-      height: 8px;
-      background: var(--bg-soft);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 0;
-      background: linear-gradient(90deg, var(--accent), #60a5fa);
-      border-radius: 999px;
-      transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    [data-theme="warm"] .progress-fill {
-      background: linear-gradient(90deg, var(--accent), #fb923c);
-    }
-
-    /* Projects */
-    .projects-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-      gap: 28px;
-    }
-
-    .project-card {
-      position: relative;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 36px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      transition: transform 0.4s, box-shadow 0.4s;
-    }
-
-    .project-card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 5px;
-      background: linear-gradient(90deg, var(--accent), transparent);
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform 0.5s;
-    }
-
-    .project-card:hover {
-      transform: translateY(-7px);
-      box-shadow: 0 28px 65px rgba(15, 23, 42, 0.13);
-    }
-
-    .project-card:hover::before {
-      transform: scaleX(1);
-    }
-
-    .project-tag {
-      display: inline-block;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--accent);
-      background: var(--accent-soft);
-      padding: 4px 10px;
-      border-radius: 999px;
-      margin-bottom: 14px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .project-card h3 {
-      font-size: 1.3rem;
-      margin-bottom: 12px;
-    }
-
-    .project-card p {
-      color: var(--text-muted);
-      font-size: 0.96rem;
-      margin-bottom: 20px;
-    }
-
-    .project-tech {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .tech-pill {
-      font-size: 0.8rem;
-      padding: 5px 12px;
-      border-radius: 999px;
-      background: var(--bg-soft);
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    /* Certificate */
-    .cert-wrap {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 48px;
-      align-items: center;
-    }
-
-    .cert-visual {
-      position: relative;
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      cursor: zoom-in;
-      transition: transform 0.4s;
-    }
-
-    .cert-visual:hover {
-      transform: scale(1.015);
-    }
-
-    .cert-visual img {
-      width: 100%;
-      border-radius: var(--radius);
-    }
-
-    .cert-badge {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: rgba(255, 255, 255, 0.95);
-      color: #111;
-      font-size: 0.78rem;
-      font-weight: 700;
-      padding: 8px 14px;
-      border-radius: 999px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-    }
-
-    .cert-info h3 {
-      font-size: 1.55rem;
-      margin-bottom: 14px;
-      line-height: 1.3;
-    }
-
-    .cert-info p {
-      color: var(--text-muted);
-      margin-bottom: 20px;
-    }
-
-    .cert-points {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .cert-points li {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      font-size: 0.96rem;
-    }
-
-    .cert-points li::before {
-      content: "✓";
-      display: grid;
-      place-items: center;
-      min-width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: var(--accent);
-      color: #fff;
-      font-size: 0.75rem;
-      font-weight: 700;
-      margin-top: 2px;
-    }
-
-    /* Interests */
-    .interests-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 24px;
-    }
-
-    .interest-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 30px 24px;
-      text-align: center;
-      box-shadow: var(--shadow);
-      transition: transform 0.35s;
-    }
-
-    .interest-card:hover {
-      transform: translateY(-6px) rotate(1deg);
-    }
-
-    .interest-icon {
-      font-size: 2.2rem;
-      margin-bottom: 14px;
-    }
-
-    .interest-card h4 {
-      font-size: 1.1rem;
-      margin-bottom: 8px;
-    }
-
-    .interest-card p {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
-    /* Footer / Contact */
-    footer {
-      padding: 90px 0 40px;
-      background: var(--bg-soft);
-      border-top: 1px solid var(--border);
-      text-align: center;
-    }
-
-    .footer-cta {
-      font-family: "Outfit", sans-serif;
-      font-size: clamp(1.6rem, 4vw, 2.4rem);
-      font-weight: 800;
-      margin-bottom: 20px;
-    }
-
-    .footer-contact {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: var(--accent);
-      margin-bottom: 40px;
-      transition: transform 0.25s;
-    }
-
-    .footer-contact:hover {
-      transform: scale(1.05);
-    }
-
-    .copyright {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-    }
-
-    /* Lightbox */
-    .lightbox {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.88);
-      z-index: 2000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.35s;
-      padding: 40px;
-    }
-
-    .lightbox.open {
-      display: flex;
-      opacity: 1;
-    }
-
-    .lightbox img {
-      max-height: 90vh;
-      border-radius: 12px;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
-      transform: scale(0.92);
-      transition: transform 0.35s;
-    }
-
-    .lightbox.open img {
-      transform: scale(1);
-    }
-
-    .lightbox-close {
-      position: absolute;
-      top: 24px;
-      right: 28px;
-      color: #fff;
-      font-size: 2rem;
-      cursor: pointer;
-      opacity: 0.8;
-      transition: opacity 0.25s;
-    }
-
-    .lightbox-close:hover { opacity: 1; }
-
-    /* Mobile menu */
-    .menu-toggle {
-      display: none;
-      background: none;
-      border: none;
-      font-size: 1.6rem;
-      cursor: pointer;
-      color: var(--text);
-    }
-
-    /* Animations */
-    @keyframes fadeUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .stagger-1 { transition-delay: 0.1s; }
-    .stagger-2 { transition-delay: 0.2s; }
-    .stagger-3 { transition-delay: 0.3s; }
-    .stagger-4 { transition-delay: 0.4s; }
-
-    /* Responsive */
-    @media (max-width: 900px) {
-      .hero-grid {
-        grid-template-columns: 1fr;
-        text-align: center;
-        gap: 40px;
-      }
-      .hero-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-      .contact-row { justify-content: center; }
-      .edu-card, .cert-wrap {
-        grid-template-columns: 1fr;
-      }
-      .projects-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .nav-links {
-        display: none;
-      }
-      .menu-toggle {
-        display: block;
-      }
-      .photo {
-        width: 220px;
-        height: 220px;
-      }
-      section { padding: 76px 0; }
-      .edu-card { padding: 28px; }
-    }
-
-    /* Print */
     @media print {
-      nav, .theme-switcher, .btn, .menu-toggle, .lightbox, .game-modal, .play-btn { display: none !important; }
-      .hero { min-height: auto; padding-top: 30px; }
-      section { padding: 34px 0; }
+      nav, .glow-blob, #code-bg, .game-modal, .lightbox, .no-print, .toast { display: none !important; }
       body { background: #fff !important; color: #000 !important; }
-      .project-card, .skill-card, .edu-card, .interest-card {
-        box-shadow: none !important;
-        border: 1px solid #ddd !important;
-        break-inside: avoid;
-      }
+      .bento, .glass { background: #fff !important; border: 1px solid #ddd !important; backdrop-filter: none !important; box-shadow: none !important; transform: none !important; animation: none !important; opacity: 1 !important; }
+      .reveal { opacity: 1 !important; transform: none !important; }
+      section, main { padding: 20px 0 !important; }
+      * { color: #111 !important; }
     }
   </style>
 </head>
-<body data-theme="light">
-  <nav>
-    <div class="container nav-inner">
-      <div class="logo">刘洋宾</div>
-      <ul class="nav-links">
-        <li><a href="#home" class="active">首页</a></li>
-        <li><a href="#about">关于</a></li>
-        <li><a href="#skills">技能</a></li>
-        <li><a href="#projects">项目</a></li>
-        <li><a href="#cert">证书</a></li>
-        <li><a href="#journey">时间线</a></li>
-        <li><a href="#contact">联系</a></li>
+<body class="bg-zinc-950 text-zinc-300 antialiased overflow-x-hidden">
+
+  <!-- Glow blobs -->
+  <div class="glow-blob bg-cyan-500/15 w-[560px] h-[560px] -top-40 -left-40" data-speed="0.04"></div>
+  <div class="glow-blob bg-indigo-500/15 w-[560px] h-[560px] -bottom-40 -right-40" data-speed="0.07"></div>
+
+  <!-- Floating code text background -->
+  <div id="code-bg"></div>
+
+  <!-- Nav -->
+  <nav class="fixed top-0 inset-x-0 z-50 bg-zinc-950/70 backdrop-blur-xl border-b border-white/5">
+    <div class="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+      <a href="#home" class="flex items-center gap-2 font-extrabold text-white text-lg tracking-tight">
+        <span class="grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-indigo-500 text-zinc-950"><i data-lucide="car-front" class="w-5 h-5"></i></span>
+        刘洋宾
+      </a>
+      <ul class="hidden md:flex items-center gap-7 text-sm font-medium text-zinc-300">
+        <li><a href="#home" class="nav-link active">首页</a></li>
+        <li><a href="#about" class="nav-link">关于</a></li>
+        <li><a href="#skills" class="nav-link">技能</a></li>
+        <li><a href="#projects" class="nav-link">项目</a></li>
+        <li><a href="#cert" class="nav-link">证书</a></li>
+        <li><a href="#journey" class="nav-link">时间线</a></li>
+        <li><a href="#contact" class="nav-link">联系</a></li>
       </ul>
-      <div class="theme-switcher" aria-label="主题切换">
-        <span class="theme-dot active" data-theme="light" title="极简白"></span>
-        <span class="theme-dot" data-theme="warm" title="暖橙"></span>
-        <span class="theme-dot" data-theme="dark" title="暗夜蓝"></span>
-      </div>
-      <button class="menu-toggle" aria-label="打开菜单">☰</button>
+      <a href="javascript:window.print()" class="no-print hidden sm:inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full border border-white/10 text-zinc-200 hover:border-cyan-400/50 hover:text-cyan-300 transition">
+        <i data-lucide="download" class="w-4 h-4"></i> PDF
+      </a>
+      <button id="menuBtn" class="md:hidden text-zinc-200" aria-label="菜单"><i data-lucide="menu" class="w-6 h-6"></i></button>
+    </div>
+    <div id="mobileMenu" class="md:hidden hidden border-t border-white/5 bg-zinc-950/95">
+      <ul class="px-5 py-3 flex flex-col gap-1 text-sm text-zinc-300">
+        <li><a href="#home" class="block py-2.5">首页</a></li>
+        <li><a href="#about" class="block py-2.5">关于</a></li>
+        <li><a href="#skills" class="block py-2.5">技能</a></li>
+        <li><a href="#projects" class="block py-2.5">项目</a></li>
+        <li><a href="#cert" class="block py-2.5">证书</a></li>
+        <li><a href="#journey" class="block py-2.5">时间线</a></li>
+        <li><a href="#contact" class="block py-2.5">联系</a></li>
+      </ul>
     </div>
   </nav>
 
-  <section class="hero" id="home">
-    <div class="blob blob-1" data-speed="0.04"></div>
-    <div class="blob blob-2" data-speed="0.07"></div>
-    <div class="container hero-grid">
-      <div class="photo-wrap">
-        <div class="photo-ring"></div>
-        <img src="photo.jpg" alt="刘洋宾证件照" class="photo" />
-      </div>
-      <div class="hero-content">
-        <div class="tag">
-          <span>👋</span>
-          <span>智能车辆工程 2026 级本科新生</span>
-        </div>
-        <h1>你好，我是 <span id="typewriter"></span><span class="cursor"></span></h1>
-        <p class="subtitle">安徽理工大学 · 智能车辆工程</p>
-        <p class="hero-desc">
-          热爱代码、算法与智能汽车，正在系统构建“工程 + 计算机”交叉能力。
-          现阶段正跟随浪尖社区学习雅思与 AI，以通过竞赛选拔为阶段目标全力冲刺。
-          长期目标：扎实本科基础，积累科研与竞赛经历，冲击国内顶尖高校智能汽车方向研究生。
-        </p>
-        <div class="motto reveal in-view">
-          <span class="motto-quote">❝</span>
-          <p>
-            <strong>失之东隅，收之桑榆。</strong><br />
-            回头看，轻舟已过万重山；向前看，前路漫漫亦灿烂。
+  <!-- Bento Grid -->
+  <main id="home" class="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 pt-28 pb-20">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 auto-rows-auto">
+
+      <!-- ★ 核心主卡片 (2x2) -->
+      <div class="reveal md:col-span-2 xl:col-span-2 xl:row-span-2">
+        <article class="bento glass rounded-3xl p-8 sm:p-10 h-full flex flex-col">
+          <div class="flex items-start gap-6">
+            <!-- monogram -->
+            <div class="relative shrink-0 grid place-items-center w-[112px] h-[112px]">
+              <div class="spin-slow absolute inset-0 rounded-full border-2 border-dashed border-cyan-400/40"></div>
+              <div class="relative grid place-items-center w-[96px] h-[96px] rounded-full bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 border border-white/10 backdrop-blur-xl shadow-2xl shadow-cyan-500/10">
+                <span class="text-5xl font-extrabold bg-gradient-to-br from-cyan-300 to-indigo-300 bg-clip-text text-transparent select-none">刘</span>
+              </div>
+            </div>
+            <div class="min-w-0">
+              <span class="inline-flex items-center gap-2 text-xs font-semibold text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 px-3 py-1.5 rounded-full mb-3">
+                <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i> 智能车辆工程 2026 级本科新生
+              </span>
+              <h1 class="text-3xl sm:text-5xl font-extrabold text-white leading-[1.1] tracking-tight mb-1">
+                <span id="typewriter" class="bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent"></span><span class="cursor-blink"></span>
+              </h1>
+              <p class="text-base text-zinc-400 font-medium mt-2">安徽理工大学 · 智能车辆工程</p>
+            </div>
+          </div>
+
+          <p class="text-zinc-400 leading-relaxed text-[0.95rem] mt-6">
+            热爱代码、算法与智能汽车，正在系统构建"工程 + 计算机"交叉能力。现阶段正跟随浪尖社区学习雅思与 AI，以通过竞赛选拔为阶段目标全力冲刺。长期目标：扎实本科基础，积累科研与竞赛经历，冲击国内顶尖高校智能汽车方向研究生。
           </p>
-          <span class="motto-quote motto-quote-end">❞</span>
-        </div>
-        <div class="contact-row">
-          <a href="tel:13275328603" class="contact-pill">📱 132-7532-8603</a>
-          <a href="mailto:2117914864@qq.com" class="contact-pill">📧 2117914864@qq.com</a>
-          <span class="contact-pill">📍 青岛</span>
-          <span class="contact-pill">🎓 安徽理工大学</span>
-          <a href="https://lyben888.github.io/resume/" target="_blank" rel="noopener" class="contact-pill" title="点击访问在线交互版简历">🌐 在线简历：lyben888.github.io/resume</a>
-          <a href="https://github.com/Lyben888/resume" target="_blank" rel="noopener" class="contact-pill" title="点击查看源代码仓库">💻 GitHub：Lyben888/resume</a>
-        </div>
-        <div>
-          <a href="#projects" class="btn btn-primary">查看项目作品 ↓</a>
-          <a href="javascript:window.print()" class="btn btn-ghost" title="在打印窗口选择「另存为 PDF」即可导出">下载 PDF 版 📄</a>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <section id="about">
-    <div class="container">
-      <div class="section-header reveal">
-        <span class="section-label">Education</span>
-        <h2 class="section-title">教育背景</h2>
+          <!-- motto -->
+          <div class="mt-5 flex gap-3 p-4 rounded-2xl border-l-2 border-cyan-400 bg-white/[.03]">
+            <i data-lucide="quote" class="w-5 h-5 text-cyan-400/60 shrink-0 mt-0.5"></i>
+            <p class="text-zinc-400 text-[0.95rem] leading-7">
+              <strong class="text-cyan-300 font-semibold tracking-wide">失之东隅，收之桑榆。</strong><br />
+              回头看，轻舟已过万重山；向前看，前路漫漫亦灿烂。
+            </p>
+          </div>
+
+          <!-- contact -->
+          <div class="flex flex-wrap gap-2.5 mt-5">
+            <a href="tel:13275328603" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full border border-white/10 bg-zinc-900/60 text-sm font-medium hover:border-cyan-400/40 hover:-translate-y-0.5 transition">
+              <i data-lucide="phone" class="w-4 h-4 text-cyan-400"></i> 132-7532-8603
+            </a>
+            <button id="copyEmail" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full border border-white/10 bg-zinc-900/60 text-sm font-medium hover:border-cyan-400/40 hover:-translate-y-0.5 transition cursor-pointer">
+              <i data-lucide="mail" class="w-4 h-4 text-cyan-400"></i> 2117914864@qq.com
+              <i data-lucide="copy" class="w-3.5 h-3.5 text-zinc-500"></i>
+            </button>
+            <span class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full border border-white/10 bg-zinc-900/60 text-sm font-medium">
+              <i data-lucide="map-pin" class="w-4 h-4 text-cyan-400"></i> 青岛
+            </span>
+            <span class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full border border-white/10 bg-zinc-900/60 text-sm font-medium">
+              <i data-lucide="building-2" class="w-4 h-4 text-cyan-400"></i> 安徽理工大学
+            </span>
+            <a href="https://lyben888.github.io/resume/" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full border border-white/10 bg-zinc-900/60 text-sm font-medium hover:border-cyan-400/40 hover:-translate-y-0.5 transition" title="点击访问在线交互版简历">
+              <i data-lucide="globe" class="w-4 h-4 text-cyan-400"></i> 在线简历
+            </a>
+            <a href="https://github.com/Lyben888/resume" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full border border-white/10 bg-zinc-900/60 text-sm font-medium hover:border-cyan-400/40 hover:-translate-y-0.5 transition" title="点击查看源代码仓库">
+              <i data-lucide="github" class="w-4 h-4 text-cyan-400"></i> GitHub
+            </a>
+          </div>
+
+          <!-- buttons -->
+          <div class="flex flex-wrap gap-3 mt-auto pt-6">
+            <a href="#projects" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-500 text-zinc-950 font-semibold text-sm shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition">
+              查看项目作品 <i data-lucide="arrow-down" class="w-4 h-4"></i>
+            </a>
+            <a href="javascript:window.print()" class="no-print inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/10 text-zinc-200 font-semibold text-sm hover:border-cyan-400/50 hover:text-cyan-300 transition" title="在打印窗口选择「另存为 PDF」即可导出">
+              下载 PDF 版 <i data-lucide="file-down" class="w-4 h-4"></i>
+            </a>
+          </div>
+        </article>
       </div>
-      <div class="edu-card reveal">
-        <div class="edu-main">
-          <h3>安徽理工大学</h3>
-          <p class="major">智能车辆工程 · 本科</p>
-          <p>
-            2026 级新生，预计 2030 年毕业。智能汽车工程专业横跨车辆工程、控制科学、计算机与人工智能，
-            契合个人对“算法 + 硬件”交叉方向的兴趣。入学前已自学 C 语言基础、HTML / CSS / JavaScript，
-            并完成多个网页小游戏练手项目。
+
+      <!-- 战绩 1 -->
+      <div class="reveal">
+        <article class="bento glass rounded-3xl p-6 h-full text-center flex flex-col items-center justify-center">
+          <i data-lucide="gamepad-2" class="w-7 h-7 text-cyan-400 mb-3"></i>
+          <div class="text-5xl font-extrabold bg-gradient-to-br from-cyan-400 to-indigo-400 bg-clip-text text-transparent">3</div>
+          <div class="text-xs text-zinc-400 mt-2">款可玩网页小游戏</div>
+        </article>
+      </div>
+      <!-- 战绩 2 -->
+      <div class="reveal">
+        <article class="bento glass rounded-3xl p-6 h-full text-center flex flex-col items-center justify-center">
+          <i data-lucide="award" class="w-7 h-7 text-cyan-400 mb-3"></i>
+          <div class="text-5xl font-extrabold bg-gradient-to-br from-cyan-400 to-indigo-400 bg-clip-text text-transparent">6</div>
+          <div class="text-xs text-zinc-400 mt-2">张 AI 证书</div>
+        </article>
+      </div>
+      <!-- 战绩 3 -->
+      <div class="reveal">
+        <article class="bento glass rounded-3xl p-6 h-full text-center flex flex-col items-center justify-center">
+          <i data-lucide="pen-tool" class="w-7 h-7 text-cyan-400 mb-3"></i>
+          <div class="text-5xl font-extrabold bg-gradient-to-br from-cyan-400 to-indigo-400 bg-clip-text text-transparent">8</div>
+          <div class="text-xs text-zinc-400 mt-2">级软笔书法</div>
+        </article>
+      </div>
+      <!-- 战绩 4 -->
+      <div class="reveal">
+        <article class="bento glass rounded-3xl p-6 h-full text-center flex flex-col items-center justify-center">
+          <i data-lucide="layers" class="w-7 h-7 text-cyan-400 mb-3"></i>
+          <div class="text-5xl font-extrabold bg-gradient-to-br from-cyan-400 to-indigo-400 bg-clip-text text-transparent">6</div>
+          <div class="text-xs text-zinc-400 mt-2">项技能持续精进</div>
+        </article>
+      </div>
+
+      <!-- 关于 / 教育 (2 列) -->
+      <div id="about" class="reveal md:col-span-2 xl:col-span-2">
+        <article class="bento glass rounded-3xl p-8 h-full">
+          <div class="flex items-center gap-2 mb-5 text-cyan-400">
+            <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+            <span class="text-xs font-bold tracking-[0.15em] uppercase">Education</span>
+          </div>
+          <h3 class="text-2xl font-bold text-white mb-1">安徽理工大学</h3>
+          <p class="text-cyan-400 font-medium mb-4 text-sm">智能车辆工程 · 本科</p>
+          <p class="text-zinc-400 leading-relaxed text-[0.95rem] mb-5">
+            2026 级新生，预计 2030 年毕业。智能汽车工程专业横跨车辆工程、控制科学、计算机与人工智能，契合个人对"算法 + 硬件"交叉方向的兴趣。入学前已自学 C 语言基础、HTML / CSS / JavaScript，并完成多个网页小游戏练手项目。
           </p>
-        </div>
-        <div class="edu-meta">
-          <div class="edu-meta-item">
-            <span>🎯 <strong>主修方向</strong></span>
-            <span>智能驾驶 / 车辆控制 / 计算机交叉</span>
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-white/[.03] border border-white/5">
+              <i data-lucide="target" class="w-5 h-5 text-cyan-400 shrink-0"></i>
+              <div class="text-sm"><span class="font-semibold text-cyan-300">主修方向</span> · 智能驾驶 / 车辆控制 / 计算机交叉</div>
+            </div>
+            <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-white/[.03] border border-white/5">
+              <i data-lucide="book-open" class="w-5 h-5 text-cyan-400 shrink-0"></i>
+              <div class="text-sm"><span class="font-semibold text-cyan-300">已学/自学</span> · C 语言、数据结构、计算机基础</div>
+            </div>
+            <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-white/[.03] border border-white/5">
+              <i data-lucide="flame" class="w-5 h-5 text-cyan-400 shrink-0"></i>
+              <div class="text-sm"><span class="font-semibold text-cyan-300">现阶段</span> · 浪尖社区学雅思与 AI，备战竞赛</div>
+            </div>
+            <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-white/[.03] border border-white/5">
+              <i data-lucide="rocket" class="w-5 h-5 text-cyan-400 shrink-0"></i>
+              <div class="text-sm"><span class="font-semibold text-cyan-300">长期目标</span> · 保研 / 考研冲清华车辆学院</div>
+            </div>
           </div>
-          <div class="edu-meta-item">
-            <span>📚 <strong>已学/自学课程</strong></span>
-            <span>C 语言程序设计、数据结构（入门）、计算机基础</span>
-          </div>
-          <div class="edu-meta-item">
-            <span>🔥 <strong>现阶段</strong></span>
-            <span>跟随浪尖社区学习雅思与 AI，备战竞赛选拔</span>
-          </div>
-          <div class="edu-meta-item">
-            <span>🚀 <strong>长期目标</strong></span>
-            <span>保研 / 考研冲击清华车辆与运载学院</span>
-          </div>
-        </div>
+        </article>
       </div>
-    </div>
-  </section>
 
-  <section id="skills" style="background: var(--bg-soft);">
-    <div class="container">
-      <div class="section-header reveal">
-        <span class="section-label">Skills</span>
-        <h2 class="section-title">技能与工具</h2>
+      <!-- 技能聚合 (2 列) -->
+      <div id="skills" class="reveal md:col-span-2 xl:col-span-2">
+        <article class="bento glass rounded-3xl p-8 h-full">
+          <div class="flex items-center gap-2 mb-5 text-cyan-400">
+            <i data-lucide="cpu" class="w-5 h-5"></i>
+            <span class="text-xs font-bold tracking-[0.15em] uppercase">Skills</span>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-x-6 gap-y-4">
+            <!-- skill capsule -->
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/[.03] border border-white/5">
+              <span class="grid place-items-center w-9 h-9 rounded-lg bg-cyan-500/10 shrink-0"><i data-lucide="bot" class="w-4 h-4 text-cyan-400"></i></span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between"><span class="text-sm font-semibold text-white">AI 工具应用</span><span class="text-xs text-cyan-300 font-bold">82%</span></div>
+                <div class="h-1.5 bg-white/5 rounded-full overflow-hidden mt-1.5"><div class="progress-fill h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-400" data-width="82%"></div></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/[.03] border border-white/5">
+              <span class="grid place-items-center w-9 h-9 rounded-lg bg-cyan-500/10 shrink-0"><i data-lucide="code-2" class="w-4 h-4 text-cyan-400"></i></span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between"><span class="text-sm font-semibold text-white">C 语言编程</span><span class="text-xs text-cyan-300 font-bold">65%</span></div>
+                <div class="h-1.5 bg-white/5 rounded-full overflow-hidden mt-1.5"><div class="progress-fill h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-400" data-width="65%"></div></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/[.03] border border-white/5">
+              <span class="grid place-items-center w-9 h-9 rounded-lg bg-cyan-500/10 shrink-0"><i data-lucide="globe" class="w-4 h-4 text-cyan-400"></i></span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between"><span class="text-sm font-semibold text-white">Web 前端基础</span><span class="text-xs text-cyan-300 font-bold">58%</span></div>
+                <div class="h-1.5 bg-white/5 rounded-full overflow-hidden mt-1.5"><div class="progress-fill h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-400" data-width="58%"></div></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/[.03] border border-white/5">
+              <span class="grid place-items-center w-9 h-9 rounded-lg bg-cyan-500/10 shrink-0"><i data-lucide="box" class="w-4 h-4 text-cyan-400"></i></span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between"><span class="text-sm font-semibold text-white">Blender 建模</span><span class="text-xs text-cyan-300 font-bold">45%</span></div>
+                <div class="h-1.5 bg-white/5 rounded-full overflow-hidden mt-1.5"><div class="progress-fill h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-400" data-width="45%"></div></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/[.03] border border-white/5">
+              <span class="grid place-items-center w-9 h-9 rounded-lg bg-cyan-500/10 shrink-0"><i data-lucide="git-branch" class="w-4 h-4 text-cyan-400"></i></span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between"><span class="text-sm font-semibold text-white">GitHub 协作</span><span class="text-xs text-cyan-300 font-bold">55%</span></div>
+                <div class="h-1.5 bg-white/5 rounded-full overflow-hidden mt-1.5"><div class="progress-fill h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-400" data-width="55%"></div></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/[.03] border border-white/5">
+              <span class="grid place-items-center w-9 h-9 rounded-lg bg-cyan-500/10 shrink-0"><i data-lucide="brain" class="w-4 h-4 text-cyan-400"></i></span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between"><span class="text-sm font-semibold text-white">自主学习</span><span class="text-xs text-cyan-300 font-bold">78%</span></div>
+                <div class="h-1.5 bg-white/5 rounded-full overflow-hidden mt-1.5"><div class="progress-fill h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-400" data-width="78%"></div></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/[.03] border border-white/5">
+              <span class="grid place-items-center w-9 h-9 rounded-lg bg-cyan-500/10 shrink-0"><i data-lucide="presentation" class="w-4 h-4 text-cyan-400"></i></span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between"><span class="text-sm font-semibold text-white">PPT 演示设计</span><span class="text-xs text-cyan-300 font-bold">70%</span></div>
+                <div class="h-1.5 bg-white/5 rounded-full overflow-hidden mt-1.5"><div class="progress-fill h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-400" data-width="70%"></div></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/[.03] border border-white/5">
+              <span class="grid place-items-center w-9 h-9 rounded-lg bg-cyan-500/10 shrink-0"><i data-lucide="table" class="w-4 h-4 text-cyan-400"></i></span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between"><span class="text-sm font-semibold text-white">Excel 数据处理</span><span class="text-xs text-cyan-300 font-bold">68%</span></div>
+                <div class="h-1.5 bg-white/5 rounded-full overflow-hidden mt-1.5"><div class="progress-fill h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-400" data-width="68%"></div></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/[.03] border border-white/5">
+              <span class="grid place-items-center w-9 h-9 rounded-lg bg-cyan-500/10 shrink-0"><i data-lucide="file-text" class="w-4 h-4 text-cyan-400"></i></span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between"><span class="text-sm font-semibold text-white">Word 文档排版</span><span class="text-xs text-cyan-300 font-bold">72%</span></div>
+                <div class="h-1.5 bg-white/5 rounded-full overflow-hidden mt-1.5"><div class="progress-fill h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-400" data-width="72%"></div></div>
+              </div>
+            </div>
+            <p class="sm:col-span-2 text-[0.7rem] text-zinc-500 leading-relaxed mt-1">办公软件：可独立完成课程汇报演示（PPT 动画 / 母版）、实验与竞赛数据整理、图表与公式（Excel）、长文档排版与格式规范（Word）。</p>
+          </div>
+        </article>
       </div>
-      <div class="skills-grid">
-        <div class="skill-card reveal stagger-1">
-          <div class="skill-icon">🤖</div>
-          <h3>AI 工具应用</h3>
-          <p>熟练使用 ChatGPT、Copilot、阿里通义等 AI 工具辅助学习、代码调试与知识梳理。</p>
-          <div class="progress-track"><div class="progress-fill" data-width="82%"></div></div>
-        </div>
-        <div class="skill-card reveal stagger-2">
-          <div class="skill-icon">💻</div>
-          <h3>C 语言编程</h3>
-          <p>掌握表达式、运算符、变量、输入输出、const、浮点数等基础，能独立完成小游戏逻辑。</p>
-          <div class="progress-track"><div class="progress-fill" data-width="65%"></div></div>
-        </div>
-        <div class="skill-card reveal stagger-3">
-          <div class="skill-icon">🌐</div>
-          <h3>Web 前端基础</h3>
-          <p>了解 HTML5、CSS3、JavaScript，能开发 Canvas 小游戏，具备 DOM 操作与事件处理能力。</p>
-          <div class="progress-track"><div class="progress-fill" data-width="58%"></div></div>
-        </div>
-        <div class="skill-card reveal stagger-4">
-          <div class="skill-icon">🎨</div>
-          <h3>Blender 建模</h3>
-          <p>略懂三维建模与基础渲染，能将创意转化为可视化模型，辅助理解机械结构与空间设计。</p>
-          <div class="progress-track"><div class="progress-fill" data-width="45%"></div></div>
-        </div>
-        <div class="skill-card reveal stagger-1">
-          <div class="skill-icon">🛠️</div>
-          <h3>GitHub 协作</h3>
-          <p>懂得利用 GitHub 管理代码、查找开源项目与学习资源，具备基本的代码版本意识。</p>
-          <div class="progress-track"><div class="progress-fill" data-width="55%"></div></div>
-        </div>
-        <div class="skill-card reveal stagger-2">
-          <div class="skill-icon">🧠</div>
-          <h3>自主学习</h3>
-          <p>善于利用网络资源自学，有清晰的知识整理习惯，能将碎片信息转化为系统笔记。</p>
-          <div class="progress-track"><div class="progress-fill" data-width="78%"></div></div>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <section id="projects">
-    <div class="container">
-      <div class="section-header reveal">
-        <span class="section-label">Projects</span>
-        <h2 class="section-title">项目经历</h2>
-      </div>
-      <div class="projects-grid">
-        <div class="project-card reveal stagger-1">
-          <span class="project-tag">Web Game</span>
-          <h3>飞机大战网页小游戏</h3>
-          <p>
-            基于 HTML5 Canvas + JavaScript 实现经典飞机射击游戏。独立完成玩家战机控制、敌机生成、
-            碰撞检测、得分统计、键盘 / 触屏双端控制等核心逻辑，锻炼了面向过程编程与游戏循环设计能力。
+      <!-- 项目 1：飞机大战 (2 列) -->
+      <div id="projects" class="reveal md:col-span-1 xl:col-span-2">
+        <article class="bento glass rounded-3xl p-7 h-full relative overflow-hidden flex flex-col">
+          <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-cyan-400 to-transparent scale-x-0 hover:scale-x-100 origin-left transition duration-500"></div>
+          <span class="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1 rounded-full mb-3 w-fit uppercase tracking-wide">
+            <i data-lucide="gamepad-2" class="w-3.5 h-3.5"></i> Web Game
+          </span>
+          <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2"><i data-lucide="plane" class="w-5 h-5 text-cyan-400"></i>飞机大战网页小游戏</h3>
+          <p class="text-zinc-400 text-sm leading-relaxed mb-4">
+            基于 HTML5 Canvas + JavaScript 实现经典飞机射击游戏。独立完成玩家战机控制、敌机生成、碰撞检测、得分统计、键盘 / 触屏双端控制等核心逻辑，锻炼了面向过程编程与游戏循环设计能力。
           </p>
-          <div class="project-tech">
-            <span class="tech-pill">HTML5 Canvas</span>
-            <span class="tech-pill">JavaScript</span>
-            <span class="tech-pill">CSS</span>
+          <div class="flex flex-wrap gap-2 mb-5">
+            <span class="text-xs px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">HTML5 Canvas</span>
+            <span class="text-xs px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">JavaScript</span>
+            <span class="text-xs px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">CSS</span>
           </div>
-          <button class="btn btn-primary play-btn" id="openGame">▶ 点击即玩 · 在线试玩</button>
-        </div>
-        <div class="project-card reveal stagger-2">
-          <span class="project-tag">Web Game</span>
-          <h3>贪吃蛇网页小游戏</h3>
-          <p>
-            使用 JavaScript 实现贪吃蛇核心玩法，包含实时渲染、边界检测、食物随机生成、
-            成长逻辑、计分板与重新开始功能。通过该项目深入理解了 DOM 操作、定时器与事件监听机制。
+          <button id="openGame" class="mt-auto inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-500 text-zinc-950 font-semibold text-sm shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition w-fit">
+            <i data-lucide="play" class="w-4 h-4"></i> 点击即玩 · 在线试玩
+          </button>
+        </article>
+      </div>
+
+      <!-- 项目 2：贪吃蛇 (2 列) -->
+      <div class="reveal md:col-span-1 xl:col-span-2">
+        <article class="bento glass rounded-3xl p-7 h-full relative overflow-hidden flex flex-col">
+          <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-cyan-400 to-transparent scale-x-0 hover:scale-x-100 origin-left transition duration-500"></div>
+          <span class="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1 rounded-full mb-3 w-fit uppercase tracking-wide">
+            <i data-lucide="gamepad-2" class="w-3.5 h-3.5"></i> Web Game
+          </span>
+          <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2"><i data-lucide="waves" class="w-5 h-5 text-cyan-400"></i>贪吃蛇网页小游戏</h3>
+          <p class="text-zinc-400 text-sm leading-relaxed mb-4">
+            使用 JavaScript 实现贪吃蛇核心玩法，包含实时渲染、边界检测、食物随机生成、成长逻辑、计分板与重新开始功能。通过该项目深入理解了 DOM 操作、定时器与事件监听机制。
           </p>
-          <div class="project-tech">
-            <span class="tech-pill">JavaScript</span>
-            <span class="tech-pill">HTML</span>
-            <span class="tech-pill">CSS</span>
+          <div class="flex flex-wrap gap-2 mb-5">
+            <span class="text-xs px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">JavaScript</span>
+            <span class="text-xs px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">HTML</span>
+            <span class="text-xs px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">CSS</span>
           </div>
-          <button class="btn btn-primary play-btn" id="openSnake">▶ 点击即玩 · 在线试玩</button>
-        </div>
+          <button id="openSnake" class="mt-auto inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-500 text-zinc-950 font-semibold text-sm shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition w-fit">
+            <i data-lucide="play" class="w-4 h-4"></i> 点击即玩 · 在线试玩
+          </button>
+        </article>
       </div>
-    </div>
-  </section>
 
-  <section id="cert" style="background: var(--bg-soft);">
-    <div class="container">
-      <div class="section-header reveal">
-        <span class="section-label">Certificate</span>
-        <h2 class="section-title">技能认证</h2>
-      </div>
-      <div class="cert-wrap reveal">
-        <div class="cert-visual" id="certOpen">
-          <span class="cert-badge">阿里巴巴橙点同学</span>
-          <img src="cert-ai-trainer.png" alt="人工智能训练师（初级）证书" />
-        </div>
-        <div class="cert-info">
-          <h3>人工智能训练师（初级）技能认证</h3>
-          <p>
-            获得阿里巴巴橙点同学「人工智能训练师（初级）」培训证明，系统学习 AI 基础概念、
-            数据标注逻辑与模型训练思维，对人工智能落地流程建立初步认知。
+      <!-- 项目 3：坦克大战 (整行) -->
+      <div class="reveal md:col-span-2 xl:col-span-4">
+        <article class="bento glass rounded-3xl p-7 h-full relative overflow-hidden flex flex-col">
+          <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-cyan-400 to-transparent scale-x-0 hover:scale-x-100 origin-left transition duration-500"></div>
+          <div class="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <span class="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1 rounded-full mb-3 w-fit uppercase tracking-wide">
+                <i data-lucide="gamepad-2" class="w-3.5 h-3.5"></i> Web Game
+              </span>
+              <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2"><i data-lucide="crosshair" class="w-5 h-5 text-cyan-400"></i>坦克大战网页游戏</h3>
+            </div>
+            <button id="openTank" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-500 text-zinc-950 font-semibold text-sm shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition shrink-0">
+              <i data-lucide="play" class="w-4 h-4"></i> 点击即玩 · 在线试玩
+            </button>
+          </div>
+          <p class="text-zinc-400 text-sm leading-relaxed mt-3 mb-4">
+            独立开发的坦克大战，支持多坦克大地图、多种难度、道具系统与双人对战。综合运用 Canvas 渲染、碰撞检测、敌人 AI、关卡与状态机设计，是工程量最大的一个练手项目，体现了从"能跑"到"好玩"的完整产品意识。
           </p>
-          <ul class="cert-points">
-            <li>了解 AI 模型训练全流程与数据标注规范</li>
-            <li>具备利用 AI 工具辅助学习与开发的基础能力</li>
-            <li>对智能汽车所需的感知 / 决策算法产生持续学习兴趣</li>
-            <li>可迁移至自动驾驶数据标注、模型迭代等实际场景</li>
-          </ul>
-        </div>
+          <div class="flex flex-wrap gap-2">
+            <span class="text-xs px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">HTML5 Canvas</span>
+            <span class="text-xs px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">JavaScript</span>
+            <span class="text-xs px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">游戏 AI</span>
+            <span class="text-xs px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">状态机</span>
+            <span class="text-xs px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">双人对战</span>
+          </div>
+        </article>
       </div>
-    </div>
-  </section>
 
-  <section id="interests">
-    <div class="container">
-      <div class="section-header reveal">
-        <span class="section-label">Personal</span>
-        <h2 class="section-title">个人特长与兴趣</h2>
+      <!-- 证书 (折叠) -->
+      <div id="cert" class="reveal md:col-span-2 xl:col-span-4">
+        <article class="bento glass rounded-3xl p-5 h-full">
+          <button id="certToggle" type="button" class="w-full flex items-center justify-between group text-left">
+            <span class="flex items-center gap-2.5 text-cyan-400">
+              <i data-lucide="award" class="w-5 h-5"></i>
+              <span class="text-xs font-bold tracking-[0.15em] uppercase">Certifications</span>
+              <span class="text-zinc-500 text-xs">· 6 张</span>
+            </span>
+            <span class="grid place-items-center w-8 h-8 rounded-full bg-white/[.04] border border-white/10 group-hover:border-cyan-400/40 transition text-zinc-400 group-hover:text-cyan-300">
+              <i data-lucide="chevron-down" id="certChevron" class="w-4 h-4 transition-transform duration-300"></i>
+            </span>
+          </button>
+          <div id="certBody" class="grid md:grid-cols-2 gap-5 mt-5 max-h-[1600px] opacity-100 transition-all duration-500 ease-out overflow-hidden">
+            <!-- 卡 1 -->
+            <div class="rounded-2xl p-5 bg-white/[.03] border border-white/5 grid sm:grid-cols-[0.85fr_1fr] gap-6 items-center">
+              <div class="cert-open relative rounded-2xl overflow-hidden cursor-zoom-in hover:scale-[1.015] transition shadow-xl" data-full="cert-ai-trainer.png">
+                <span class="absolute top-3 right-3 z-10 bg-zinc-950/80 backdrop-blur text-cyan-300 text-[0.7rem] font-bold px-2.5 py-1 rounded-full border border-cyan-500/30">阿里巴巴橙点同学</span>
+                <img src="cert-ai-trainer.png" alt="人工智能训练师（初级）证书" class="w-full rounded-2xl" />
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white mb-3 leading-snug flex items-start gap-2">
+                  <i data-lucide="badge-check" class="w-5 h-5 text-cyan-400 shrink-0 mt-0.5"></i>
+                  人工智能训练师（初级）技能认证
+                </h3>
+                <ul class="flex flex-col gap-2.5">
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>了解 AI 模型训练全流程与数据标注规范</li>
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>具备利用 AI 工具辅助学习与开发的基础能力</li>
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>对智能汽车感知 / 决策算法产生持续兴趣</li>
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>可迁移至自动驾驶数据标注、模型迭代场景</li>
+                </ul>
+              </div>
+            </div>
+            <!-- 卡 2 -->
+            <div class="rounded-2xl p-5 bg-white/[.03] border border-white/5 grid sm:grid-cols-[0.85fr_1fr] gap-6 items-center">
+              <div class="cert-open relative rounded-2xl overflow-hidden cursor-zoom-in hover:scale-[1.015] transition shadow-xl" data-full="cert-prompt-engineer.jpg">
+                <span class="absolute top-3 right-3 z-10 bg-zinc-950/80 backdrop-blur text-cyan-300 text-[0.7rem] font-bold px-2.5 py-1 rounded-full border border-cyan-500/30">科大讯飞 AI 大学堂</span>
+                <img src="cert-prompt-engineer.jpg" alt="Prompt 工程师认证" class="w-full rounded-2xl" />
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white mb-3 leading-snug flex items-start gap-2">
+                  <i data-lucide="badge-check" class="w-5 h-5 text-cyan-400 shrink-0 mt-0.5"></i>
+                  Prompt 工程师认证
+                </h3>
+                <ul class="flex flex-col gap-2.5">
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>掌握结构化提示词设计、大模型交互与输出控制方法</li>
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>能基于大模型 API 与工具链快速开发 AI 应用原型</li>
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>可迁移至智能汽车人机交互、场景生成与代码辅助</li>
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>证书编号 XFPROMPT599692 · 有效期至 2028-08-19</li>
+                </ul>
+              </div>
+            </div>
+            <!-- 卡 3 -->
+            <div class="rounded-2xl p-5 bg-white/[.03] border border-white/5 grid sm:grid-cols-[0.85fr_1fr] gap-6 items-center">
+              <div class="cert-open relative rounded-2xl overflow-hidden cursor-zoom-in hover:scale-[1.015] transition shadow-xl" data-full="cert-fine-tuning-engineer.jpg">
+                <span class="absolute top-3 right-3 z-10 bg-zinc-950/80 backdrop-blur text-cyan-300 text-[0.7rem] font-bold px-2.5 py-1 rounded-full border border-cyan-500/30">科大讯飞 AI 大学堂</span>
+                <img src="cert-fine-tuning-engineer.jpg" alt="微调工程师认证" class="w-full rounded-2xl" />
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white mb-3 leading-snug flex items-start gap-2">
+                  <i data-lucide="badge-check" class="w-5 h-5 text-cyan-400 shrink-0 mt-0.5"></i>
+                  微调工程师认证
+                </h3>
+                <ul class="flex flex-col gap-2.5">
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>理解大模型微调全流程，能使用标注数据完成训练</li>
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>掌握训练集构建、超参数调优与模型评估方法</li>
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>可迁移至智能汽车垂直场景模型优化与数据闭环</li>
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>证书编号 XFTUNING403676 · 有效期至 2028-08-19</li>
+                </ul>
+              </div>
+            </div>
+            <!-- 卡 4 -->
+            <div class="rounded-2xl p-5 bg-white/[.03] border border-white/5 grid sm:grid-cols-[0.85fr_1fr] gap-6 items-center">
+              <div class="cert-open relative rounded-2xl overflow-hidden cursor-zoom-in hover:scale-[1.015] transition shadow-xl" data-full="cert-agent-engineer.jpg">
+                <span class="absolute top-3 right-3 z-10 bg-zinc-950/80 backdrop-blur text-cyan-300 text-[0.7rem] font-bold px-2.5 py-1 rounded-full border border-cyan-500/30">科大讯飞 AI 大学堂</span>
+                <img src="cert-agent-engineer.jpg" alt="智能体工程师认证" class="w-full rounded-2xl" />
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white mb-3 leading-snug flex items-start gap-2">
+                  <i data-lucide="badge-check" class="w-5 h-5 text-cyan-400 shrink-0 mt-0.5"></i>
+                  智能体工程师认证
+                </h3>
+                <ul class="flex flex-col gap-2.5">
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>理解 Agent 架构、工具调用、记忆与任务规划机制</li>
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>掌握工作流编排、多 Agent 协作与 API 集成方法</li>
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>可迁移至智能汽车座舱助手、自动驾驶决策 Agent 等场景</li>
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>证书编号 XFAGENT585574 · 有效期至 2028-08-20</li>
+                </ul>
+              </div>
+            </div>
+            <!-- 卡 5 -->
+            <div class="rounded-2xl p-5 bg-white/[.03] border border-white/5 grid sm:grid-cols-[0.85fr_1fr] gap-6 items-center">
+              <div class="cert-open relative rounded-2xl overflow-hidden cursor-zoom-in hover:scale-[1.015] transition shadow-xl" data-full="cert-rag-engineer.jpg">
+                <span class="absolute top-3 right-3 z-10 bg-zinc-950/80 backdrop-blur text-cyan-300 text-[0.7rem] font-bold px-2.5 py-1 rounded-full border border-cyan-500/30">科大讯飞 AI 大学堂</span>
+                <img src="cert-rag-engineer.jpg" alt="RAG 工程师认证" class="w-full rounded-2xl" />
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white mb-3 leading-snug flex items-start gap-2">
+                  <i data-lucide="badge-check" class="w-5 h-5 text-cyan-400 shrink-0 mt-0.5"></i>
+                  RAG 工程师认证
+                </h3>
+                <ul class="flex flex-col gap-2.5">
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>理解 RAG 架构、向量检索与知识库构建全流程</li>
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>掌握 Embedding、文档切分、重排序与检索增强生成技术</li>
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>可迁移至智能汽车维修手册、法规标准等知识库应用</li>
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>证书编号 XFRAG105221 · 有效期至 2028-08-20</li>
+                </ul>
+              </div>
+            </div>
+            <!-- 卡 6 -->
+            <div class="rounded-2xl p-5 bg-white/[.03] border border-white/5 grid sm:grid-cols-[0.85fr_1fr] gap-6 items-center">
+              <div class="cert-open relative rounded-2xl overflow-hidden cursor-zoom-in hover:scale-[1.015] transition shadow-xl" data-full="cert-ai-trainer-advanced.png">
+                <span class="absolute top-3 right-3 z-10 bg-zinc-950/80 backdrop-blur text-cyan-300 text-[0.7rem] font-bold px-2.5 py-1 rounded-full border border-cyan-500/30">阿里巴巴橙点同学</span>
+                <img src="cert-ai-trainer-advanced.png" alt="人工智能训练师（高级）证书" class="w-full rounded-2xl" />
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white mb-3 leading-snug flex items-start gap-2">
+                  <i data-lucide="badge-check" class="w-5 h-5 text-cyan-400 shrink-0 mt-0.5"></i>
+                  人工智能训练师（高级）技能认证
+                </h3>
+                <ul class="flex flex-col gap-2.5">
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>理解高级 AI 模型训练、数据治理与模型质量评估体系</li>
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>掌握复杂标注规范、模型评测与训练迭代优化方法</li>
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>可迁移至自动驾驶感知数据标注、模型优化与数据闭环</li>
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300"><i data-lucide="check" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>阿里巴巴橙点同学培训证明 · 高级认证</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </article>
       </div>
-      <div class="interests-grid">
-        <div class="interest-card reveal stagger-1">
-          <div class="interest-icon">✒️</div>
-          <h4>软笔书法 8 级</h4>
-          <p>长期临帖训练，培养了耐心、专注力与审美素养。</p>
-        </div>
-        <div class="interest-card reveal stagger-2">
-          <div class="interest-icon">🎵</div>
-          <h4>R&B / Hip-hop / 流行</h4>
-          <p>喜欢听、唱多种曲风，节奏感强，善于用音乐放松与激发灵感。</p>
-        </div>
-        <div class="interest-card reveal stagger-3">
-          <div class="interest-icon">🏔️</div>
-          <h4>自然与旅行</h4>
-          <p>偏爱高原、大漠、雪山、古城，乐于在旅途中拓宽视野。</p>
-        </div>
-        <div class="interest-card reveal stagger-4">
-          <div class="interest-icon">📖</div>
-          <h4>持续学习</h4>
-          <p>习惯整理笔记、复盘错题，擅长把复杂知识结构化。</p>
-        </div>
-      </div>
-      <div class="gallery-grid">
-        <div class="gallery-card reveal stagger-1">
-          <div class="gallery-icon">✒️</div>
-          <h4>软笔书法作品</h4>
-          <p>代表作照片整理中 · 提供 8 级考级作品或日常临帖后即可展示</p>
-        </div>
-        <div class="gallery-card reveal stagger-2">
-          <div class="gallery-icon">🎨</div>
-          <h4>Blender 建模作品</h4>
-          <p>练习模型渲染图整理中 · 提供截图后即可展示</p>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <section id="journey" style="background: var(--bg-soft);">
-    <div class="container">
-      <div class="section-header reveal">
-        <span class="section-label">Journey</span>
-        <h2 class="section-title">成长时间线</h2>
+      <!-- 个人特长 (2 列) -->
+      <div id="interests" class="reveal md:col-span-2 xl:col-span-2">
+        <article class="bento glass rounded-3xl p-7 h-full">
+          <div class="flex items-center gap-2 mb-5 text-cyan-400">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+            <span class="text-xs font-bold tracking-[0.15em] uppercase">Personal</span>
+          </div>
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="rounded-2xl p-4 bg-white/[.03] border border-white/5 text-center">
+              <div class="grid place-items-center w-10 h-10 rounded-xl bg-cyan-500/10 mx-auto mb-2.5"><i data-lucide="pen-tool" class="w-5 h-5 text-cyan-400"></i></div>
+              <h4 class="text-sm font-bold text-white mb-1">软笔书法 8 级</h4>
+              <p class="text-zinc-500 text-[0.7rem] leading-snug">长期临帖，培养耐心专注与审美</p>
+            </div>
+            <div class="rounded-2xl p-4 bg-white/[.03] border border-white/5 text-center">
+              <div class="grid place-items-center w-10 h-10 rounded-xl bg-cyan-500/10 mx-auto mb-2.5"><i data-lucide="music" class="w-5 h-5 text-cyan-400"></i></div>
+              <h4 class="text-sm font-bold text-white mb-1">R&B / Hip-hop</h4>
+              <p class="text-zinc-500 text-[0.7rem] leading-snug">听唱多种曲风，节奏感强</p>
+            </div>
+            <div class="rounded-2xl p-4 bg-white/[.03] border border-white/5 text-center">
+              <div class="grid place-items-center w-10 h-10 rounded-xl bg-cyan-500/10 mx-auto mb-2.5"><i data-lucide="mountain" class="w-5 h-5 text-cyan-400"></i></div>
+              <h4 class="text-sm font-bold text-white mb-1">自然与旅行</h4>
+              <p class="text-zinc-500 text-[0.7rem] leading-snug">偏爱高原大漠雪山古城</p>
+            </div>
+            <div class="rounded-2xl p-4 bg-white/[.03] border border-white/5 text-center">
+              <div class="grid place-items-center w-10 h-10 rounded-xl bg-cyan-500/10 mx-auto mb-2.5"><i data-lucide="book-open" class="w-5 h-5 text-cyan-400"></i></div>
+              <h4 class="text-sm font-bold text-white mb-1">持续学习</h4>
+              <p class="text-zinc-500 text-[0.7rem] leading-snug">善整理笔记与结构化知识</p>
+            </div>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-3 mt-3">
+            <div class="rounded-2xl p-3 border border-white/10 bg-white/[.03] hover:border-cyan-400/40 transition">
+              <h4 class="text-white text-sm font-semibold mb-2 text-center flex items-center justify-center gap-1.5">
+                <i data-lucide="pen-tool" class="w-4 h-4 text-cyan-300"></i>软笔书法作品
+              </h4>
+              <img src="calligraphy-work.png" alt="软笔书法作品" class="w-full h-36 object-cover rounded-xl border border-white/10" loading="lazy">
+              <p class="text-[0.65rem] text-zinc-500 mt-2 text-center">原代表作照片暂未找到，暂以此传统文化书法作品示意</p>
+            </div>
+            <div class="rounded-2xl p-4 border border-cyan-400/20 bg-cyan-500/[.04] text-center hover:border-cyan-400/50 transition">
+              <div class="flex items-center justify-center gap-2 mb-2 text-cyan-300">
+                <i data-lucide="box" class="w-5 h-5"></i>
+                <h4 class="text-white text-sm font-semibold">Blender 建模 · 电动概念车</h4>
+              </div>
+              <model-viewer src="car_model.glb" poster="car_model_preview.png" alt="电动概念跑车 3D 模型" camera-controls auto-rotate auto-rotate-delay="0" rotation-per-second="30deg" interaction-prompt="none" shadow-intensity="1" exposure="1.1" style="width:100%;height:220px;background:transparent;border-radius:14px;"></model-viewer>
+              <p class="text-[0.7rem] text-zinc-400 mt-1">拖动旋转 · 滚轮缩放</p>
+            </div>
+          </div>
+        </article>
       </div>
-      <div class="timeline">
-        <div class="t-item reveal">
-          <span class="t-dot"></span>
-          <span class="t-date">2026.06</span>
-          <h4>高考收官，方向落定</h4>
-          <p>确定智能车辆工程为本科专业，锚定智能汽车 / 算法交叉方向。</p>
-        </div>
-        <div class="t-item reveal">
-          <span class="t-dot"></span>
-          <span class="t-date">2026 暑假 · 编程起步</span>
-          <h4>自学 C 语言基础</h4>
-          <p>系统学习表达式、运算符、变量、输入输出、const、浮点数等核心内容，坚持手写笔记 + 错题复盘。</p>
-        </div>
-        <div class="t-item reveal">
-          <span class="t-dot"></span>
-          <span class="t-date">2026.07 · 项目实战</span>
-          <h4>独立开发两款网页小游戏</h4>
-          <p>基于 HTML5 Canvas + JavaScript 完成飞机大战、贪吃蛇，已在简历中支持在线试玩。</p>
-        </div>
-        <div class="t-item reveal">
-          <span class="t-dot"></span>
-          <span class="t-date">2026.08 · 认证与进阶</span>
-          <h4>AI 训练师认证 + 社区学习</h4>
-          <p>考取阿里巴巴「人工智能训练师（初级）」；跟随浪尖社区学习雅思与 AI，备战竞赛选拔。</p>
-        </div>
-        <div class="t-item reveal">
-          <span class="t-dot"></span>
-          <span class="t-date">2026.09</span>
-          <h4>入读安徽理工大学</h4>
-          <p>智能车辆工程本科，阶段目标：专业排名前 1–3%，打牢数学与编程基础。</p>
-        </div>
-        <div class="t-item reveal">
-          <span class="t-dot"></span>
-          <span class="t-date">2027 – 2030</span>
-          <h4>竞赛 · 科研 · 保研冲刺</h4>
-          <p>智能车竞赛、数学建模、大创项目、实验室科研经历逐步积累，争取推免资格。</p>
-        </div>
-        <div class="t-item goal reveal">
-          <span class="t-dot"></span>
-          <span class="t-date">🎯 目标</span>
-          <h4>清华大学 · 车辆与运载学院</h4>
-          <p>智能汽车方向硕士研究生——失之东隅，收之桑榆，前路漫漫亦灿烂。</p>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <footer id="contact">
-    <div class="container">
-      <p class="footer-cta reveal">期待与你交流</p>
-      <div class="reveal stagger-1" style="display:flex; gap:26px; justify-content:center; flex-wrap:wrap; margin-bottom:40px;">
-        <a href="tel:13275328603" class="footer-contact">📱 132-7532-8603</a>
-        <a href="mailto:2117914864@qq.com" class="footer-contact">📧 2117914864@qq.com</a>
-        <a href="https://lyben888.github.io/resume/" target="_blank" rel="noopener" class="footer-contact">🌐 在线简历</a>
-        <a href="https://github.com/Lyben888/resume" target="_blank" rel="noopener" class="footer-contact">💻 GitHub 源码</a>
+      <!-- 经历时间线 (整行) -->
+      <div id="journey" class="reveal md:col-span-2 xl:col-span-4">
+        <article class="bento glass rounded-3xl p-7 h-full">
+          <div class="flex items-center gap-2 mb-6 text-cyan-400">
+            <i data-lucide="route" class="w-5 h-5"></i>
+            <span class="text-xs font-bold tracking-[0.15em] uppercase">Journey</span>
+          </div>
+          <div class="flex flex-col lg:flex-row lg:gap-0 gap-4">
+            <!-- node -->
+            <div class="flex-1 min-w-0 lg:px-3 relative">
+              <span class="block w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_0_5px_rgba(34,211,238,0.15)] mb-3"></span>
+              <span class="inline-block text-[0.7rem] font-bold text-cyan-300 bg-cyan-500/10 px-2.5 py-1 rounded-full mb-2">2026.06</span>
+              <h4 class="text-sm font-bold text-white mb-1">高考收官，方向落定</h4>
+              <p class="text-zinc-400 text-xs leading-snug">确定智能车辆工程为本科专业，锚定智能汽车 / 算法交叉方向。</p>
+            </div>
+            <div class="flex-1 min-w-0 lg:px-3 relative">
+              <span class="block w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_0_5px_rgba(34,211,238,0.15)] mb-3"></span>
+              <span class="inline-block text-[0.7rem] font-bold text-cyan-300 bg-cyan-500/10 px-2.5 py-1 rounded-full mb-2">2026 暑假</span>
+              <h4 class="text-sm font-bold text-white mb-1">自学 C 语言基础</h4>
+              <p class="text-zinc-400 text-xs leading-snug">系统学习表达式、变量、输入输出等，坚持手写笔记 + 错题复盘。</p>
+            </div>
+            <div class="flex-1 min-w-0 lg:px-3 relative">
+              <span class="block w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_0_5px_rgba(34,211,238,0.15)] mb-3"></span>
+              <span class="inline-block text-[0.7rem] font-bold text-cyan-300 bg-cyan-500/10 px-2.5 py-1 rounded-full mb-2">2026.07</span>
+              <h4 class="text-sm font-bold text-white mb-1">独立开发两款网页小游戏</h4>
+              <p class="text-zinc-400 text-xs leading-snug">基于 Canvas + JS 完成飞机大战、贪吃蛇，简历内支持在线试玩。</p>
+            </div>
+            <div class="flex-1 min-w-0 lg:px-3 relative">
+              <span class="block w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_0_5px_rgba(34,211,238,0.15)] mb-3"></span>
+              <span class="inline-block text-[0.7rem] font-bold text-cyan-300 bg-cyan-500/10 px-2.5 py-1 rounded-full mb-2">2026.08</span>
+              <h4 class="text-sm font-bold text-white mb-1">AI 训练师认证 + 社区学习</h4>
+              <p class="text-zinc-400 text-xs leading-snug">考取阿里「人工智能训练师（初级）」；跟随浪尖社区学雅思与 AI。</p>
+            </div>
+            <div class="flex-1 min-w-0 lg:px-3 relative">
+              <span class="block w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_0_5px_rgba(34,211,238,0.15)] mb-3"></span>
+              <span class="inline-block text-[0.7rem] font-bold text-cyan-300 bg-cyan-500/10 px-2.5 py-1 rounded-full mb-2">2026.09</span>
+              <h4 class="text-sm font-bold text-white mb-1">入读安徽理工大学</h4>
+              <p class="text-zinc-400 text-xs leading-snug">智能车辆工程本科，目标：专业排名前 1–3%，打牢数基。</p>
+            </div>
+            <div class="flex-1 min-w-0 lg:px-3 relative">
+              <span class="block w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_0_5px_rgba(34,211,238,0.15)] mb-3"></span>
+              <span class="inline-block text-[0.7rem] font-bold text-cyan-300 bg-cyan-500/10 px-2.5 py-1 rounded-full mb-2">2027 – 2030</span>
+              <h4 class="text-sm font-bold text-white mb-1">竞赛 · 科研 · 保研冲刺</h4>
+              <p class="text-zinc-400 text-xs leading-snug">智能车竞赛、数模、大创、实验室经历积累，争取推免资格。</p>
+            </div>
+            <div class="flex-1 min-w-0 lg:px-3 relative">
+              <span class="block w-4 h-4 rounded-full bg-amber-400 pulse-ring mb-2.5"></span>
+              <span class="inline-block text-[0.7rem] font-bold text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded-full mb-2">🎯 目标</span>
+              <h4 class="text-sm font-bold text-amber-300 mb-1">清华大学 · 车辆与运载学院</h4>
+              <p class="text-zinc-400 text-xs leading-snug">智能汽车方向硕士——失之东隅，收之桑榆，前路漫漫亦灿烂。</p>
+            </div>
+          </div>
+        </article>
       </div>
-      <p class="copyright reveal stagger-2">
-        © 2026 刘洋宾 · 安徽理工大学 · 智能车辆工程
-      </p>
+
+    </div>
+  </main>
+
+  <!-- Footer / Contact -->
+  <footer id="contact" class="relative z-10 pt-12 pb-10 border-t border-white/5 text-center">
+    <div class="max-w-6xl mx-auto px-5 sm:px-8">
+      <h2 class="reveal text-3xl sm:text-4xl font-extrabold text-white mb-5">期待与你交流</h2>
+      <div class="reveal flex flex-wrap gap-5 justify-center mb-8">
+        <a href="tel:13275328603" class="inline-flex items-center gap-2 text-base font-semibold text-cyan-400 hover:scale-105 transition"><i data-lucide="phone" class="w-5 h-5"></i> 132-7532-8603</a>
+        <a href="mailto:2117914864@qq.com" class="inline-flex items-center gap-2 text-base font-semibold text-cyan-400 hover:scale-105 transition"><i data-lucide="mail" class="w-5 h-5"></i> 2117914864@qq.com</a>
+        <a href="https://lyben888.github.io/resume/" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-base font-semibold text-cyan-400 hover:scale-105 transition"><i data-lucide="globe" class="w-5 h-5"></i> 在线简历</a>
+        <a href="https://github.com/Lyben888/resume" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-base font-semibold text-cyan-400 hover:scale-105 transition"><i data-lucide="github" class="w-5 h-5"></i> GitHub 源码</a>
+      </div>
+      <p class="reveal text-zinc-500 text-sm">© 2026 刘洋宾 · 安徽理工大学 · 智能车辆工程</p>
     </div>
   </footer>
 
-  <div class="game-modal" id="gameModal">
-    <div class="game-panel">
-      <div class="game-head">
-        <span>✈️ 飞机大战 · 在线试玩<span class="game-score" id="gameScore">得分 0</span></span>
-        <button class="game-close" id="gameClose" title="关闭">&times;</button>
+  <!-- Game modal: plane -->
+  <div class="game-modal fixed inset-0 z-[2100] hidden items-center justify-center p-6 bg-zinc-950/85 backdrop-blur-md" id="gameModal">
+    <div class="game-panel glass rounded-3xl p-5 shadow-2xl">
+      <div class="flex items-center justify-between mb-3 font-bold text-white text-base">
+        <span class="flex items-center gap-2"><i data-lucide="plane" class="w-4 h-4 text-cyan-400"></i>飞机大战 · 在线试玩 <span class="game-score text-cyan-400 ml-3 font-extrabold" id="gameScore">得分 0</span></span>
+        <button class="game-close text-zinc-400 hover:text-white hover:rotate-90 transition text-2xl leading-none" id="gameClose" title="关闭">&times;</button>
       </div>
       <canvas id="gameCanvas" width="360" height="560"></canvas>
-      <div class="game-tips">← → / A D / 鼠标 / 触屏 移动 · 自动开火 · R 重开</div>
+      <div class="mt-2.5 text-center text-xs text-zinc-500">← → / A D / 鼠标 / 触屏 移动 · 自动开火 · R 重开</div>
     </div>
   </div>
 
-  <div class="game-modal" id="snakeModal">
-    <div class="game-panel">
-      <div class="game-head">
-        <span>🐍 贪吃蛇 · 在线试玩<span class="game-score" id="snakeScore">得分 0</span></span>
-        <button class="game-close" id="snakeClose" title="关闭">&times;</button>
+  <!-- Game modal: snake -->
+  <div class="game-modal fixed inset-0 z-[2100] hidden items-center justify-center p-6 bg-zinc-950/85 backdrop-blur-md" id="snakeModal">
+    <div class="game-panel glass rounded-3xl p-5 shadow-2xl">
+      <div class="flex items-center justify-between mb-3 font-bold text-white text-base">
+        <span class="flex items-center gap-2"><i data-lucide="waves" class="w-4 h-4 text-cyan-400"></i>贪吃蛇 · 在线试玩 <span class="game-score text-cyan-400 ml-3 font-extrabold" id="snakeScore">得分 0</span></span>
+        <button class="game-close text-zinc-400 hover:text-white hover:rotate-90 transition text-2xl leading-none" id="snakeClose" title="关闭">&times;</button>
       </div>
       <canvas id="snakeCanvas" width="360" height="560"></canvas>
-      <div class="game-tips">方向键 / WASD / 触屏滑动 控制方向 · R 重开</div>
+      <div class="mt-2.5 text-center text-xs text-zinc-500">方向键 / WASD / 触屏滑动 控制方向 · R 重开</div>
     </div>
   </div>
 
-  <div class="lightbox" id="lightbox">
-    <span class="lightbox-close" id="lightboxClose">&times;</span>
-    <img src="cert-ai-trainer.png" alt="人工智能训练师（初级）证书大图" />
+  <!-- Game modal: tank (iframe) -->
+  <div class="game-modal fixed inset-0 z-[2100] hidden items-center justify-center p-4 sm:p-6 bg-zinc-950/85 backdrop-blur-md" id="tankModal">
+    <div class="game-panel glass rounded-3xl p-3 sm:p-4 shadow-2xl w-full max-w-5xl">
+      <div class="flex items-center justify-between mb-2.5 font-bold text-white text-base px-1">
+        <span class="flex items-center gap-2"><i data-lucide="crosshair" class="w-4 h-4 text-cyan-400"></i>坦克大战 · 在线试玩</span>
+        <button class="game-close text-zinc-400 hover:text-white hover:rotate-90 transition text-2xl leading-none" id="tankClose" title="关闭">&times;</button>
+      </div>
+      <iframe id="tankFrame" src="tank-battle.html" title="坦克大战" class="w-full rounded-2xl bg-[#11141d] border-0 block" style="height: min(78vh, 720px);"></iframe>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox fixed inset-0 z-[2000] hidden items-center justify-center opacity-0 transition-opacity duration-300 p-10 bg-zinc-950/90" id="lightbox">
+    <span class="lightbox-close absolute top-6 right-7 text-white text-3xl cursor-pointer opacity-80 hover:opacity-100 transition" id="lightboxClose">&times;</span>
+    <img src="cert-ai-trainer.png" alt="人工智能训练师（初级）证书大图" class="max-h-[90vh] rounded-xl shadow-2xl" />
+  </div>
+
+  <!-- Toast -->
+  <div class="toast fixed bottom-8 left-1/2 -translate-x-1/2 z-[3000] flex items-center gap-2 px-5 py-3 rounded-full bg-zinc-900/80 backdrop-blur-xl border border-cyan-500/30 text-cyan-300 text-sm font-medium shadow-2xl" id="toast">
+    <i data-lucide="check-circle" class="w-4 h-4"></i> 邮箱已复制到剪贴板
   </div>
 
   <script>
-    // Typewriter effect
+    function renderIcons() { if (window.lucide) lucide.createIcons(); }
+    renderIcons();
+    document.addEventListener('DOMContentLoaded', renderIcons);
+
+    // Typewriter
     const name = "刘洋宾";
     const typeEl = document.getElementById("typewriter");
     let idx = 0;
     function type() {
-      if (idx < name.length) {
-        typeEl.textContent += name.charAt(idx);
-        idx++;
-        setTimeout(type, 220);
-      }
+      if (idx < name.length) { typeEl.textContent += name.charAt(idx); idx++; setTimeout(type, 220); }
     }
     setTimeout(type, 500);
 
-    // Theme switching
-    const themeDots = document.querySelectorAll(".theme-dot");
-    themeDots.forEach(dot => {
-      dot.addEventListener("click", () => {
-        const theme = dot.dataset.theme;
-        document.body.setAttribute("data-theme", theme);
-        themeDots.forEach(d => d.classList.remove("active"));
-        dot.classList.add("active");
-        localStorage.setItem("resume-theme", theme);
-      });
-    });
-
-    const savedTheme = localStorage.getItem("resume-theme") || "light";
-    document.body.setAttribute("data-theme", savedTheme);
-    themeDots.forEach(d => d.classList.toggle("active", d.dataset.theme === savedTheme));
-
-    // Scroll reveal & progress bars
+    // Reveal + progress bars (outer wrappers only)
     const revealEls = document.querySelectorAll(".reveal");
-    const progressBars = document.querySelectorAll(".progress-fill");
-
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add("in-view");
-          if (entry.target.querySelector(".progress-fill")) {
-            entry.target.querySelectorAll(".progress-fill").forEach(bar => {
-              bar.style.width = bar.dataset.width;
-            });
-          }
+          entry.target.querySelectorAll(".progress-fill").forEach(bar => { bar.style.width = bar.dataset.width; });
         }
       });
     }, { threshold: 0.14 });
-
     revealEls.forEach(el => observer.observe(el));
+    document.querySelectorAll(".progress-fill").forEach(bar => {
+      if (bar.getBoundingClientRect().top < window.innerHeight) bar.style.width = bar.dataset.width;
+    });
 
     // Parallax blobs
-    const blobs = document.querySelectorAll(".blob");
+    const blobs = document.querySelectorAll(".glow-blob");
     let ticking = false;
     window.addEventListener("scroll", () => {
       if (!ticking) {
         requestAnimationFrame(() => {
           const y = window.scrollY;
-          blobs.forEach(blob => {
-            const speed = parseFloat(blob.dataset.speed);
-            blob.style.transform = `translateY(${y * speed}px)`;
-          });
+          blobs.forEach(b => { b.style.transform = `translateY(${y * parseFloat(b.dataset.speed)}px)`; });
           ticking = false;
         });
         ticking = true;
       }
     });
 
-    // Active nav link
-    const sections = document.querySelectorAll("section, footer");
-    const navLinks = document.querySelectorAll(".nav-links a");
+    // Active nav
+    const sections = document.querySelectorAll("section, footer, main");
+    const navLinks = document.querySelectorAll(".nav-link");
     window.addEventListener("scroll", () => {
       let current = "";
-      sections.forEach(sec => {
-        const secTop = sec.offsetTop;
-        if (scrollY >= secTop - 120) current = sec.getAttribute("id");
-      });
-      navLinks.forEach(link => {
-        link.classList.remove("active");
-        if (link.getAttribute("href") === "#" + current) link.classList.add("active");
-      });
+      sections.forEach(sec => { if (scrollY >= sec.offsetTop - 120) current = sec.getAttribute("id"); });
+      navLinks.forEach(link => { link.classList.toggle("active", link.getAttribute("href") === "#" + current); });
     });
 
-    // Certificate lightbox
-    const certOpen = document.getElementById("certOpen");
+    // Mobile menu
+    const menuBtn = document.getElementById("menuBtn");
+    const mobileMenu = document.getElementById("mobileMenu");
+    menuBtn.addEventListener("click", () => mobileMenu.classList.toggle("hidden"));
+    mobileMenu.querySelectorAll("a").forEach(a => a.addEventListener("click", () => mobileMenu.classList.add("hidden")));
+
+    // Copy email + toast
+    const copyBtn = document.getElementById("copyEmail");
+    const toast = document.getElementById("toast");
+    let toastTimer;
+    copyBtn.addEventListener("click", async () => {
+      const email = "2117914864@qq.com";
+      try { await navigator.clipboard.writeText(email); }
+      catch (e) {
+        const ta = document.createElement("textarea"); ta.value = email; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove();
+      }
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2000);
+    });
+
+    // Lightbox (supports multiple .cert-open images)
+    const certOpens = document.querySelectorAll(".cert-open");
     const lightbox = document.getElementById("lightbox");
     const lightboxClose = document.getElementById("lightboxClose");
+    certOpens.forEach(el => {
+      el.addEventListener("click", () => {
+        const img = lightbox.querySelector("img");
+        if (el.dataset.full) img.src = el.dataset.full;
+        lightbox.classList.remove("hidden"); lightbox.classList.add("flex");
+        requestAnimationFrame(() => lightbox.classList.remove("opacity-0"));
+      });
+    });
+    lightboxClose.addEventListener("click", () => { lightbox.classList.add("opacity-0"); setTimeout(() => { lightbox.classList.add("hidden"); lightbox.classList.remove("flex"); }, 300); });
+    lightbox.addEventListener("click", (e) => { if (e.target === lightbox) lightboxClose.click(); });
 
-    certOpen.addEventListener("click", () => lightbox.classList.add("open"));
-    lightboxClose.addEventListener("click", () => lightbox.classList.remove("open"));
-    lightbox.addEventListener("click", (e) => {
-      if (e.target === lightbox) lightbox.classList.remove("open");
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") lightbox.classList.remove("open");
+    // Certifications collapse
+    const certToggleBtn = document.getElementById("certToggle");
+    const certBodyEl = document.getElementById("certBody");
+    const certChevron = document.getElementById("certChevron");
+    let certExpanded = true;
+    certToggleBtn.addEventListener("click", () => {
+      certExpanded = !certExpanded;
+      certBodyEl.classList.toggle("max-h-[1600px]", certExpanded);
+      certBodyEl.classList.toggle("opacity-100", certExpanded);
+      certBodyEl.classList.toggle("mt-5", certExpanded);
+      certBodyEl.classList.toggle("max-h-0", !certExpanded);
+      certBodyEl.classList.toggle("opacity-0", !certExpanded);
+      certBodyEl.classList.toggle("mt-0", !certExpanded);
+      certChevron.classList.toggle("rotate-[-90deg]", !certExpanded);
     });
 
-    // Animate progress bars in view on load already if visible
-    progressBars.forEach(bar => {
-      const rect = bar.getBoundingClientRect();
-      if (rect.top < window.innerHeight) bar.style.width = bar.dataset.width;
-    });
+    // Vanilla-Tilt 3D (desktop only; auto-disabled on touch / small screens)
+    function initTilt() {
+      if (!window.VanillaTilt) return;
+      const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+      if (!fine) return; // 移动端/触屏降级，避免滚动冲突
+      VanillaTilt.init(document.querySelectorAll('.bento'), {
+        max: 6, speed: 400, glare: true, 'max-glare': 0.15,
+        perspective: 900, scale: 1.0, reset: true,
+      });
+    }
+    window.addEventListener('DOMContentLoaded', initTilt);
 
     /* ================= 飞机大战 mini game ================= */
     const gameModal = document.getElementById("gameModal");
@@ -1583,167 +869,80 @@
 
     function shoot() {
       const now = performance.now();
-      if (now - lastShot > 170) {
-        lastShot = now;
-        bullets.push({ x: player.x, y: player.y - 22, v: 8 });
-      }
+      if (now - lastShot > 170) { lastShot = now; bullets.push({ x: player.x, y: player.y - 22, v: 8 }); }
     }
 
     function drawPlayer() {
       ctx.save();
       ctx.translate(player.x, player.y);
-      ctx.shadowColor = "#38bdf8";
-      ctx.shadowBlur = 14;
+      ctx.shadowColor = "#38bdf8"; ctx.shadowBlur = 14;
       ctx.fillStyle = "#7dd3fc";
-      ctx.beginPath();
-      ctx.moveTo(0, -20);
-      ctx.lineTo(16, 16);
-      ctx.lineTo(0, 8);
-      ctx.lineTo(-16, 16);
-      ctx.closePath();
-      ctx.fill();
+      ctx.beginPath(); ctx.moveTo(0, -20); ctx.lineTo(16, 16); ctx.lineTo(0, 8); ctx.lineTo(-16, 16); ctx.closePath(); ctx.fill();
       ctx.restore();
-      // engine flame
       ctx.fillStyle = "rgba(251, 191, 36, " + (0.5 + Math.random() * 0.5) + ")";
-      ctx.beginPath();
-      ctx.moveTo(player.x - 4, player.y + 10);
-      ctx.lineTo(player.x + 4, player.y + 10);
-      ctx.lineTo(player.x, player.y + 20 + Math.random() * 8);
-      ctx.closePath();
-      ctx.fill();
+      ctx.beginPath(); ctx.moveTo(player.x - 4, player.y + 10); ctx.lineTo(player.x + 4, player.y + 10); ctx.lineTo(player.x, player.y + 20 + Math.random() * 8); ctx.closePath(); ctx.fill();
     }
 
     function drawEnemy(e) {
-      ctx.save();
-      ctx.translate(e.x, e.y);
-      ctx.shadowColor = "#f87171";
-      ctx.shadowBlur = 10;
+      ctx.save(); ctx.translate(e.x, e.y);
+      ctx.shadowColor = "#f87171"; ctx.shadowBlur = 10;
       ctx.fillStyle = e.hp > 1 ? "#fb7185" : "#f87171";
-      ctx.beginPath();
-      ctx.moveTo(0, e.r);
-      ctx.lineTo(e.r, -e.r * 0.7);
-      ctx.lineTo(0, -e.r * 0.3);
-      ctx.lineTo(-e.r, -e.r * 0.7);
-      ctx.closePath();
-      ctx.fill();
+      ctx.beginPath(); ctx.moveTo(0, e.r); ctx.lineTo(e.r, -e.r * 0.7); ctx.lineTo(0, -e.r * 0.3); ctx.lineTo(-e.r, -e.r * 0.7); ctx.closePath(); ctx.fill();
       ctx.restore();
     }
 
-    function hit(a, b) {
-      return Math.hypot(a.x - b.x, a.y - b.y) < (a.r || 10) + (b.r || 10);
-    }
+    function hit(a, b) { return Math.hypot(a.x - b.x, a.y - b.y) < (a.r || 10) + (b.r || 10); }
 
     function drawGameOver() {
-      ctx.fillStyle = "rgba(8, 10, 20, 0.75)";
-      ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = "#fff";
-      ctx.textAlign = "center";
-      ctx.font = "800 26px Outfit, sans-serif";
-      ctx.fillText("游戏结束", W / 2, H / 2 - 26);
-      ctx.font = "500 15px 'Noto Sans SC', sans-serif";
-      ctx.fillStyle = "#94a3b8";
-      ctx.fillText("本局得分 " + score, W / 2, H / 2 + 6);
-      ctx.fillStyle = "#38bdf8";
-      ctx.fillText("按 R 或点击屏幕重新开始", W / 2, H / 2 + 36);
+      ctx.fillStyle = "rgba(8, 10, 20, 0.75)"; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "#fff"; ctx.textAlign = "center";
+      ctx.font = "800 26px 'Plus Jakarta Sans', sans-serif"; ctx.fillText("游戏结束", W / 2, H / 2 - 26);
+      ctx.font = "500 15px 'Noto Sans SC', sans-serif"; ctx.fillStyle = "#94a3b8"; ctx.fillText("本局得分 " + score, W / 2, H / 2 + 6);
+      ctx.fillStyle = "#38bdf8"; ctx.fillText("按 R 或点击屏幕重新开始", W / 2, H / 2 + 36);
     }
 
     function loop(ts) {
       if (!playing) { drawGameOver(); return; }
-      // stars
-      stars.forEach(s => {
-        s.y += s.v;
-        if (s.y > H) { s.y = 0; s.x = Math.random() * W; }
-      });
-      // player move
+      stars.forEach(s => { s.y += s.v; if (s.y > H) { s.y = 0; s.x = Math.random() * W; } });
       if (keys["ArrowLeft"] || keys["a"]) player.x -= player.speed;
       if (keys["ArrowRight"] || keys["d"]) player.x += player.speed;
       player.x = Math.max(20, Math.min(W - 20, player.x));
       shoot();
-      // spawn
-      if (ts - lastSpawn > Math.max(320, 1100 - score * 6)) {
-        lastSpawn = ts;
-        spawnEnemy();
-      }
-      // update bullets
-      bullets = bullets.filter(b => {
-        b.y -= b.v;
-        return b.y > -10;
-      });
-      // update enemies
+      if (ts - lastSpawn > Math.max(320, 1100 - score * 6)) { lastSpawn = ts; spawnEnemy(); }
+      bullets = bullets.filter(b => { b.y -= b.v; return b.y > -10; });
       enemies.forEach(e => { e.y += e.v; });
-      // bullet-enemy collision
       bullets.forEach(b => {
         for (let i = enemies.length - 1; i >= 0; i--) {
           if (hit(b, enemies[i])) {
-            bullets.splice(bullets.indexOf(b), 1);
-            enemies[i].hp--;
+            bullets.splice(bullets.indexOf(b), 1); enemies[i].hp--;
             if (enemies[i].hp <= 0) { enemies.splice(i, 1); score += 10; updateScore(); }
             break;
           }
         }
       });
-      // enemy-player / enemy-bottom
       for (let i = enemies.length - 1; i >= 0; i--) {
         const e = enemies[i];
-        if (hit({ x: player.x, y: player.y, r: 14 }, e)) {
-          enemies.splice(i, 1); lives--; updateScore();
-          if (lives <= 0) playing = false;
-        } else if (e.y - e.r > H) {
-          enemies.splice(i, 1);
-        }
+        if (hit({ x: player.x, y: player.y, r: 14 }, e)) { enemies.splice(i, 1); lives--; updateScore(); if (lives <= 0) playing = false; }
+        else if (e.y - e.r > H) { enemies.splice(i, 1); }
       }
-      // render
-      ctx.fillStyle = "#0b1020";
-      ctx.fillRect(0, 0, W, H);
-      stars.forEach(s => {
-        ctx.fillStyle = "rgba(255,255,255," + s.s / 2 + ")";
-        ctx.fillRect(s.x, s.y, s.s, s.s);
-      });
+      ctx.fillStyle = "#0b1020"; ctx.fillRect(0, 0, W, H);
+      stars.forEach(s => { ctx.fillStyle = "rgba(255,255,255," + s.s / 2 + ")"; ctx.fillRect(s.x, s.y, s.s, s.s); });
       ctx.fillStyle = "#fde047";
-      bullets.forEach(b => {
-        ctx.shadowColor = "#fde047";
-        ctx.shadowBlur = 6;
-        ctx.fillRect(b.x - 2, b.y - 8, 4, 10);
-        ctx.shadowBlur = 0;
-      });
+      bullets.forEach(b => { ctx.shadowColor = "#fde047"; ctx.shadowBlur = 6; ctx.fillRect(b.x - 2, b.y - 8, 4, 10); ctx.shadowBlur = 0; });
       enemies.forEach(drawEnemy);
       drawPlayer();
       rafId = requestAnimationFrame(loop);
     }
 
-    function startGame() {
-      resetGame();
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(loop);
-    }
+    function startGame() { resetGame(); cancelAnimationFrame(rafId); rafId = requestAnimationFrame(loop); }
 
-    openGameBtn.addEventListener("click", () => {
-      gameModal.classList.add("open");
-      startGame();
-    });
-
+    openGameBtn.addEventListener("click", () => { gameModal.classList.remove("hidden"); gameModal.classList.add("flex", "open"); startGame(); });
     gameCloseBtn.addEventListener("click", closeGame);
     gameModal.addEventListener("click", (e) => { if (e.target === gameModal) closeGame(); });
+    function closeGame() { gameModal.classList.remove("open", "flex"); gameModal.classList.add("hidden"); playing = false; cancelAnimationFrame(rafId); }
 
-    function closeGame() {
-      gameModal.classList.remove("open");
-      playing = false;
-      cancelAnimationFrame(rafId);
-    }
-
-    canvas.addEventListener("mousemove", (e) => {
-      if (!playing) return;
-      const rect = canvas.getBoundingClientRect();
-      player.x = (e.clientX - rect.left) * (W / rect.width);
-    });
-
-    canvas.addEventListener("touchmove", (e) => {
-      if (!playing) return;
-      e.preventDefault();
-      const rect = canvas.getBoundingClientRect();
-      player.x = (e.touches[0].clientX - rect.left) * (W / rect.width);
-    }, { passive: false });
-
+    canvas.addEventListener("mousemove", (e) => { if (!playing) return; const rect = canvas.getBoundingClientRect(); player.x = (e.clientX - rect.left) * (W / rect.width); });
+    canvas.addEventListener("touchmove", (e) => { if (!playing) return; e.preventDefault(); const rect = canvas.getBoundingClientRect(); player.x = (e.touches[0].clientX - rect.left) * (W / rect.width); }, { passive: false });
     canvas.addEventListener("click", () => { if (!playing) startGame(); });
 
     document.addEventListener("keydown", (e) => {
@@ -1768,142 +967,78 @@
 
     function snakeReset() {
       snake = [{ x: 9, y: 14 }, { x: 8, y: 14 }, { x: 7, y: 14 }];
-      sDir = { x: 1, y: 0 };
-      sNextDir = { x: 1, y: 0 };
-      sScore = 0;
-      sPlaying = true;
-      sInterval = 160;
-      placeFood();
-      updateSnakeScore();
+      sDir = { x: 1, y: 0 }; sNextDir = { x: 1, y: 0 };
+      sScore = 0; sPlaying = true; sInterval = 160;
+      placeFood(); updateSnakeScore();
     }
-
-    function placeFood() {
-      do {
-        food = { x: Math.floor(Math.random() * COLS), y: Math.floor(Math.random() * ROWS) };
-      } while (snake.some(s => s.x === food.x && s.y === food.y));
-    }
-
-    function updateSnakeScore() {
-      sScoreEl.textContent = "得分 " + sScore + " · 长度 " + snake.length;
-    }
+    function placeFood() { do { food = { x: Math.floor(Math.random() * COLS), y: Math.floor(Math.random() * ROWS) }; } while (snake.some(s => s.x === food.x && s.y === food.y)); }
+    function updateSnakeScore() { sScoreEl.textContent = "得分 " + sScore + " · 长度 " + snake.length; }
 
     function snakeStep() {
       sDir = sNextDir;
       const head = { x: snake[0].x + sDir.x, y: snake[0].y + sDir.y };
-      // wall or self collision
-      if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS ||
-          snake.some(s => s.x === head.x && s.y === head.y)) {
-        sPlaying = false;
-        return;
-      }
+      if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS || snake.some(s => s.x === head.x && s.y === head.y)) { sPlaying = false; return; }
       snake.unshift(head);
-      if (head.x === food.x && head.y === food.y) {
-        sScore += 10;
-        sInterval = Math.max(70, sInterval - 4);
-        placeFood();
-      } else {
-        snake.pop();
-      }
+      if (head.x === food.x && head.y === food.y) { sScore += 10; sInterval = Math.max(70, sInterval - 4); placeFood(); } else { snake.pop(); }
       updateSnakeScore();
     }
 
     function drawSnakeGame() {
-      // background + grid
-      sctx.fillStyle = "#0b1020";
-      sctx.fillRect(0, 0, sCanvas.width, sCanvas.height);
+      sctx.fillStyle = "#0b1020"; sctx.fillRect(0, 0, sCanvas.width, sCanvas.height);
       sctx.strokeStyle = "rgba(255,255,255,0.03)";
-      for (let i = 1; i < COLS; i++) {
-        sctx.beginPath(); sctx.moveTo(i * CELL, 0); sctx.lineTo(i * CELL, sCanvas.height); sctx.stroke();
-      }
-      for (let j = 1; j < ROWS; j++) {
-        sctx.beginPath(); sctx.moveTo(0, j * CELL); sctx.lineTo(sCanvas.width, j * CELL); sctx.stroke();
-      }
-      // food
-      sctx.save();
-      sctx.shadowColor = "#f87171";
-      sctx.shadowBlur = 12;
-      sctx.fillStyle = "#fb7185";
-      sctx.beginPath();
-      sctx.arc(food.x * CELL + CELL / 2, food.y * CELL + CELL / 2, CELL / 2 - 3, 0, Math.PI * 2);
-      sctx.fill();
-      sctx.restore();
-      // snake body
+      for (let i = 1; i < COLS; i++) { sctx.beginPath(); sctx.moveTo(i * CELL, 0); sctx.lineTo(i * CELL, sCanvas.height); sctx.stroke(); }
+      for (let j = 1; j < ROWS; j++) { sctx.beginPath(); sctx.moveTo(0, j * CELL); sctx.lineTo(sCanvas.width, j * CELL); sctx.stroke(); }
+      sctx.save(); sctx.shadowColor = "#f87171"; sctx.shadowBlur = 12; sctx.fillStyle = "#fb7185";
+      sctx.beginPath(); sctx.arc(food.x * CELL + CELL / 2, food.y * CELL + CELL / 2, CELL / 2 - 3, 0, Math.PI * 2); sctx.fill(); sctx.restore();
       snake.forEach((seg, i) => {
         const t = i / Math.max(1, snake.length - 1);
-        const r = Math.round(56 + t * (34 - 56));
-        const g = Math.round(189 - t * 100);
-        const b = Math.round(248 - t * 60);
+        const r = Math.round(56 + t * (34 - 56)), g = Math.round(189 - t * 100), b = Math.round(248 - t * 60);
         sctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
         const pad = i === 0 ? 1.5 : 2.5;
-        sctx.beginPath();
-        sctx.roundRect(seg.x * CELL + pad, seg.y * CELL + pad, CELL - pad * 2, CELL - pad * 2, 6);
-        sctx.fill();
+        sctx.beginPath(); sctx.roundRect(seg.x * CELL + pad, seg.y * CELL + pad, CELL - pad * 2, CELL - pad * 2, 6); sctx.fill();
       });
-      // eyes on head
-      const head = snake[0];
-      sctx.fillStyle = "#0b1020";
-      const ex = head.x * CELL + CELL / 2, ey = head.y * CELL + CELL / 2;
-      const off = 4;
-      const eyes = sDir.x !== 0
-        ? [[ex + sDir.x * 4, ey - off], [ex + sDir.x * 4, ey + off]]
-        : [[ex - off, ey + sDir.y * 4], [ex + off, ey + sDir.y * 4]];
-      eyes.forEach(([px, py]) => {
-        sctx.beginPath(); sctx.arc(px, py, 2.2, 0, Math.PI * 2); sctx.fill();
-      });
+      const head = snake[0]; sctx.fillStyle = "#0b1020";
+      const ex = head.x * CELL + CELL / 2, ey = head.y * CELL + CELL / 2, off = 4;
+      const eyes = sDir.x !== 0 ? [[ex + sDir.x * 4, ey - off], [ex + sDir.x * 4, ey + off]] : [[ex - off, ey + sDir.y * 4], [ex + off, ey + sDir.y * 4]];
+      eyes.forEach(([px, py]) => { sctx.beginPath(); sctx.arc(px, py, 2.2, 0, Math.PI * 2); sctx.fill(); });
     }
 
     function drawSnakeOver() {
-      sctx.fillStyle = "rgba(8, 10, 20, 0.75)";
-      sctx.fillRect(0, 0, sCanvas.width, sCanvas.height);
-      sctx.fillStyle = "#fff";
-      sctx.textAlign = "center";
-      sctx.font = "800 26px Outfit, sans-serif";
-      sctx.fillText("游戏结束", sCanvas.width / 2, sCanvas.height / 2 - 26);
-      sctx.font = "500 15px 'Noto Sans SC', sans-serif";
-      sctx.fillStyle = "#94a3b8";
-      sctx.fillText("本局得分 " + sScore + " · 蛇长 " + snake.length, sCanvas.width / 2, sCanvas.height / 2 + 6);
-      sctx.fillStyle = "#38bdf8";
-      sctx.fillText("按 R 或点击屏幕重新开始", sCanvas.width / 2, sCanvas.height / 2 + 36);
+      sctx.fillStyle = "rgba(8, 10, 20, 0.75)"; sctx.fillRect(0, 0, sCanvas.width, sCanvas.height);
+      sctx.fillStyle = "#fff"; sctx.textAlign = "center";
+      sctx.font = "800 26px 'Plus Jakarta Sans', sans-serif"; sctx.fillText("游戏结束", sCanvas.width / 2, sCanvas.height / 2 - 26);
+      sctx.font = "500 15px 'Noto Sans SC', sans-serif"; sctx.fillStyle = "#94a3b8"; sctx.fillText("本局得分 " + sScore + " · 蛇长 " + snake.length, sCanvas.width / 2, sCanvas.height / 2 + 6);
+      sctx.fillStyle = "#38bdf8"; sctx.fillText("按 R 或点击屏幕重新开始", sCanvas.width / 2, sCanvas.height / 2 + 36);
     }
 
     function snakeLoop(ts) {
       if (!sPlaying) { drawSnakeOver(); return; }
-      if (ts - sLastStep >= sInterval) {
-        sLastStep = ts;
-        snakeStep();
-        if (!sPlaying) { drawSnakeOver(); return; }
-      }
-      drawSnakeGame();
-      sRafId = requestAnimationFrame(snakeLoop);
+      if (ts - sLastStep >= sInterval) { sLastStep = ts; snakeStep(); if (!sPlaying) { drawSnakeOver(); return; } }
+      drawSnakeGame(); sRafId = requestAnimationFrame(snakeLoop);
     }
 
-    function startSnake() {
-      snakeReset();
-      cancelAnimationFrame(sRafId);
-      sLastStep = 0;
-      sRafId = requestAnimationFrame(snakeLoop);
-    }
+    function startSnake() { snakeReset(); cancelAnimationFrame(sRafId); sLastStep = 0; sRafId = requestAnimationFrame(snakeLoop); }
 
-    openSnakeBtn.addEventListener("click", () => {
-      snakeModal.classList.add("open");
-      startSnake();
-    });
-
+    openSnakeBtn.addEventListener("click", () => { snakeModal.classList.remove("hidden"); snakeModal.classList.add("flex", "open"); startSnake(); });
     snakeCloseBtn.addEventListener("click", closeSnake);
     snakeModal.addEventListener("click", (e) => { if (e.target === snakeModal) closeSnake(); });
+    function closeSnake() { snakeModal.classList.remove("open", "flex"); snakeModal.classList.add("hidden"); sPlaying = false; cancelAnimationFrame(sRafId); }
 
-    function closeSnake() {
-      snakeModal.classList.remove("open");
-      sPlaying = false;
-      cancelAnimationFrame(sRafId);
-    }
+    // Tank battle (iframe)
+    const tankModal = document.getElementById("tankModal");
+    const openTankBtn = document.getElementById("openTank");
+    const tankCloseBtn = document.getElementById("tankClose");
+    const tankFrame = document.getElementById("tankFrame");
+    function closeTank() { tankModal.classList.remove("open", "flex"); tankModal.classList.add("hidden"); tankFrame.src = tankFrame.src; }
+    openTankBtn.addEventListener("click", () => { tankModal.classList.remove("hidden"); tankModal.classList.add("flex", "open"); });
+    tankCloseBtn.addEventListener("click", closeTank);
+    tankModal.addEventListener("click", (e) => { if (e.target === tankModal) closeTank(); });
+    document.addEventListener("keydown", (e) => { if (tankModal.classList.contains("open") && e.key === "Escape") closeTank(); });
 
     sCanvas.addEventListener("click", () => { if (!sPlaying) startSnake(); });
 
-    // keyboard control
     const dirMap = {
-      ArrowUp: { x: 0, y: -1 }, ArrowDown: { x: 0, y: 1 },
-      ArrowLeft: { x: -1, y: 0 }, ArrowRight: { x: 1, y: 0 },
+      ArrowUp: { x: 0, y: -1 }, ArrowDown: { x: 0, y: 1 }, ArrowLeft: { x: -1, y: 0 }, ArrowRight: { x: 1, y: 0 },
       w: { x: 0, y: -1 }, s: { x: 0, y: 1 }, a: { x: -1, y: 0 }, d: { x: 1, y: 0 }
     };
     document.addEventListener("keydown", (e) => {
@@ -1911,30 +1046,51 @@
       if (e.key === "Escape") { closeSnake(); return; }
       if (e.key === "r" || e.key === "R") { startSnake(); return; }
       const nd = dirMap[e.key];
-      if (nd && !(nd.x === -sDir.x && nd.y === -sDir.y)) {
-        sNextDir = nd;
-        e.preventDefault();
-      }
+      if (nd && !(nd.x === -sDir.x && nd.y === -sDir.y)) { sNextDir = nd; e.preventDefault(); }
     });
 
-    // touch swipe control
     let touchStartX = 0, touchStartY = 0;
-    sCanvas.addEventListener("touchstart", (e) => {
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
-    }, { passive: true });
+    sCanvas.addEventListener("touchstart", (e) => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; }, { passive: true });
     sCanvas.addEventListener("touchmove", (e) => {
       e.preventDefault();
-      const dx = e.touches[0].clientX - touchStartX;
-      const dy = e.touches[0].clientY - touchStartY;
+      const dx = e.touches[0].clientX - touchStartX, dy = e.touches[0].clientY - touchStartY;
       if (Math.abs(dx) < 24 && Math.abs(dy) < 24) return;
       let nd;
-      if (Math.abs(dx) > Math.abs(dy)) nd = { x: dx > 0 ? 1 : -1, y: 0 };
-      else nd = { x: 0, y: dy > 0 ? 1 : -1 };
+      if (Math.abs(dx) > Math.abs(dy)) nd = { x: dx > 0 ? 1 : -1, y: 0 }; else nd = { x: 0, y: dy > 0 ? 1 : -1 };
       if (!(nd.x === -sDir.x && nd.y === -sDir.y)) sNextDir = nd;
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
     }, { passive: false });
+  </script>
+  <!-- Floating code text background (random size/color/shade, vertically drifting) -->
+  <script>
+    (function () {
+      const bg = document.getElementById('code-bg');
+      if (!bg) return;
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const snippets = ['const','let','function','return','async','await','=>','import','export','class','struct','void','printf','def','for(','while(','if(){','else','try{','catch(e)','#include','template','map(','filter(','fetch(','useState','useEffect','gl_FragColor','vec3(','mat4','render(','onMount','emit(','push(','new ','static','public','int main','float','char*','nullptr','yield','enum','switch','break','continue'];
+      const hues = [187, 238, 262, 322, 145, 217, 28, 48]; // cyan/indigo/purple/pink/green/blue/orange/yellow
+      const COUNT = Math.max(26, Math.min(48, Math.round(window.innerWidth / 34)));
+      const rand = (a, b) => a + Math.random() * (b - a);
+      for (let i = 0; i < COUNT; i++) {
+        const s = document.createElement('span');
+        s.className = 'code-float';
+        s.textContent = snippets[(Math.random() * snippets.length) | 0];
+        const hue = hues[(Math.random() * hues.length) | 0];
+        const light = Math.round(rand(46, 70));          // 深浅各异（整体更实）
+        const sat = Math.round(rand(72, 100));
+        s.style.color = 'hsl(' + hue + ' ' + sat + '% ' + light + '%)';
+        s.style.left = rand(-3, 97).toFixed(2) + '%';
+        s.style.top = rand(-3, 95).toFixed(2) + '%';
+        s.style.fontSize = rand(11, 27).toFixed(1) + 'px'; // 大小各异
+        s.style.opacity = rand(0.14, 0.32).toFixed(3);     // 颜色加深
+        if (!reduce) {
+          s.style.setProperty('--fy', (-rand(22, 82)).toFixed(1) + 'px');
+          s.style.setProperty('--dur', rand(4, 10).toFixed(1) + 's'); // 速度加快
+          s.style.setProperty('--delay', (-rand(0, 10)).toFixed(1) + 's');
+        }
+        bg.appendChild(s);
+      }
+    })();
   </script>
 </body>
 </html>
